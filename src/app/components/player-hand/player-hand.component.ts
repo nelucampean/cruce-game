@@ -5,11 +5,10 @@ import { GameService } from '../../services/game.service';
 import { CardComponent } from '../card/card.component';
 
 @Component({
-  selector: 'app-player-hand',
-  standalone: true,
-  imports: [CommonModule, CardComponent],
-  templateUrl: './player-hand.component.html',
-  styleUrls: ['./player-hand.component.scss']
+    selector: 'app-player-hand',
+    imports: [CommonModule, CardComponent],
+    templateUrl: './player-hand.component.html',
+    styleUrls: ['./player-hand.component.scss']
 })
 export class PlayerHandComponent {
   @Input() cards: Card[] = [];

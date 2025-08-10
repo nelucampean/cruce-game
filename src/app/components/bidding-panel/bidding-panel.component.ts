@@ -3,11 +3,10 @@ import { CommonModule } from '@angular/common';
 import { Suit } from '../../models/card.model';
 
 @Component({
-  selector: 'app-bidding-panel',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './bidding-panel.component.html',
-  styleUrls: ['./bidding-panel.component.scss']
+    selector: 'app-bidding-panel',
+    imports: [CommonModule],
+    templateUrl: './bidding-panel.component.html',
+    styleUrls: ['./bidding-panel.component.scss']
 })
 export class BiddingPanelComponent {
   @Input() currentBid = 0;

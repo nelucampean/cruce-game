@@ -3,11 +3,10 @@ import { CommonModule } from '@angular/common';
 import { GameService } from '../../services/game.service';
 
 @Component({
-  selector: 'app-score-board',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './score-board.component.html',
-  styleUrls: ['./score-board.component.scss']
+    selector: 'app-score-board',
+    imports: [CommonModule],
+    templateUrl: './score-board.component.html',
+    styleUrls: ['./score-board.component.scss']
 })
 export class ScoreBoardComponent implements OnInit {
   playerScores: number[] = [0, 0, 0, 0];

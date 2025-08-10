@@ -7,16 +7,15 @@ import { BiddingPanelComponent } from '../bidding-panel/bidding-panel.component'
 import { CardComponent } from '../card/card.component';
 
 @Component({
-  selector: 'app-game-board',
-  standalone: true,
-  imports: [
-    CommonModule,
-    PlayerHandComponent,
-    BiddingPanelComponent,
-    CardComponent
-  ],
-  templateUrl: './game-board.component.html',
-  styleUrls: ['./game-board.component.scss']
+    selector: 'app-game-board',
+    imports: [
+        CommonModule,
+        PlayerHandComponent,
+        BiddingPanelComponent,
+        CardComponent
+    ],
+    templateUrl: './game-board.component.html',
+    styleUrls: ['./game-board.component.scss']
 })
 export class GameBoardComponent implements OnInit {
   gamePhase: GamePhase = GamePhase.BIDDING;
