@@ -1,0 +1,72 @@
+.card {
+  width: 80px;
+  height: 112px;
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  &.playable {
+    border-color: #4CAF50;
+    cursor: pointer;
+  }
+  
+  &.selected {
+    border-color: #2196F3;
+    transform: translateY(-10px);
+    box-shadow: 0 5px 20px rgba(33, 150, 243, 0.5);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.card-content {
+  text-align: center;
+}
+
+.card-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.card-suit {
+  font-size: 1.5rem;
+  
+  &.spades, &.clubs {
+    color: black;
+  }
+  
+  &.hearts, &.diamonds {
+    color: red;
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    width: 60px;
+    height: 84px;
+  }
+  
+  .card-value {
+    font-size: 1rem;
+  }
+  
+  .card-suit {
+    font-size: 1.2rem;
+  }
+}

@@ -1,0 +1,29 @@
+<div class="bidding-panel" *ngIf="isPlayerTurn">
+  <h3>Your Turn to Bid</h3>
+  <p>Current highest bid: {{ currentBid || 'None' }}</p>
+  
+  <div class="bid-options">
+    <button 
+      *ngFor="let bid of bidOptions"
+      class="bid-button"
+      [disabled]="!canBid(bid)"
+      [attr.aria-label]="'Bid ' + bid + ' points'"
+      (click)="selectedBid = bid; makeBid()">
+      {{ bid }}
+    </button>
+  </div>
+
+  <div class="bid-actions">
+    <button 
+      class="pass-button"
+      [attr.aria-label]="'Pass this round'"
+      (click)="pass()">
+      Pass
+    </button>
+  </div>
+</div>
+
+<div class="waiting-panel" *ngIf="!isPlayerTurn">
+  <h3>Waiting for other players...</h3>
+  <p>Current highest bid: {{ currentBid || 'None' }}</p>
+</div>

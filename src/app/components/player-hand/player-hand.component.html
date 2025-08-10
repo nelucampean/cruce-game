@@ -1,0 +1,10 @@
+<div class="player-hand" role="group" [attr.aria-label]="'Your hand: ' + cards.length + ' cards'">
+  <app-card
+    *ngFor="let card of cards; trackBy: trackByCardId"
+    [card]="card"
+    [isPlayable]="isCardPlayable(card)"
+    [isSelected]="selectedCard?.id === card.id"
+    (cardClicked)="onCardClick(card)"
+    class="hand-card">
+  </app-card>
+</div>

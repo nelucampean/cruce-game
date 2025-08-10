@@ -1,0 +1,27 @@
+.player-hand {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 1rem;
+  min-height: 120px;
+}
+
+.hand-card {
+  transition: all 0.3s ease;
+
+  &:hover {
+    z-index: 10;
+  }
+}
+
+@media (max-width: 768px) {
+  .player-hand {
+    gap: 0.25rem;
+    padding: 0.5rem;
+  }
+
+  .hand-card {
+    margin: 0 -5px; // Slight overlap on mobile
+  }
+}

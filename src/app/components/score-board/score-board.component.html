@@ -1,0 +1,23 @@
+<div class="score-board">
+  <div class="round-info">
+    <span>Round {{ currentRound }}</span>
+  </div>
+  
+  <div class="team-scores">
+    <div class="team">
+      <span class="team-label">Your Team:</span>
+      <span class="team-score">{{ gameScores[0] }}</span>
+    </div>
+    <div class="team">
+      <span class="team-label">Opponents:</span>
+      <span class="team-score">{{ gameScores[1] }}</span>
+    </div>
+  </div>
+
+  <div class="individual-scores" [attr.aria-label]="'Individual player scores'">
+    <div class="player-score" *ngFor="let score of playerScores; let i = index">
+      <span class="player-name">{{ i === 0 ? 'You' : 'Bot ' + i }}</span>
+      <span class="score">{{ score }}</span>
+    </div>
+  </div>
+</div>

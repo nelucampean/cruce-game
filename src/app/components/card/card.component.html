@@ -1,0 +1,18 @@
+<button 
+  class="card"
+  [class.playable]="isPlayable"
+  [class.selected]="isSelected"
+  [disabled]="!isPlayable"
+  [attr.aria-label]="getCardDescription()"
+  [attr.aria-pressed]="isSelected"
+  (click)="onClick()"
+  (keydown.enter)="onClick()"
+  (keydown.space)="onClick()">
+  
+  <div class="card-content">
+    <div class="card-value">{{ card.displayValue }}</div>
+    <div class="card-suit" [class]="card.suit">
+      {{ getSuitSymbol(card.suit) }}
+    </div>
+  </div>
+</button>

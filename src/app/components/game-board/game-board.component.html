@@ -1,0 +1,60 @@
+<div class="game-board" [attr.aria-label]="'Game board for ' + gamePhase">
+  
+  <!-- Opponent's area -->
+  <div class="opponent-area">
+    <div class="player-info">
+      <span>{{ opponents[0].name || 'Bot 1' }}</span>
+      <span class="card-count">{{ opponents[0].hand.length || 0 }} cards</span>
+    </div>
+    <div class="opponent-cards">
+      <div 
+        class="card-back" 
+        *ngFor="let card of getCardBacks(opponents[0]?.hand?.length || 0); trackBy: trackByIndex"
+        [attr.aria-hidden]="true">
+      </div>
+    </div>
+  </div>
+
+  <!-- Center playing area -->
+  <div class="center-area">
+    <!-- Bidding panel (shown during bidding phase) -->
+    <app-bidding-panel 
+      *ngIf="gamePhase === 'bidding'"
+      [currentBid]="currentBid"
+      [isPlayerTurn]="isPlayerTurn"
+      (bidMade)="onBidMade($event)">
+    </app-bidding-panel>
+
+    <!-- Current trick (shown during playing phase) -->
+    <div 
+      class="current-trick" 
+      *ngIf="gamePhase === 'playing'"
+      [attr.aria-label]="getCurrentTrickDescription()">
+      <app-card 
+        *ngFor="let card of currentTrick; trackBy: trackByCardId" 
+        [card]="card"
+        [isPlayable]="false">
+      </app-card>
+    </div>
+
+    <!-- Trump suit indicator -->
+    <div class="trump-indicator" *ngIf="trumpSuit">
+      <span>Trump: </span>
+      <span class="trump-suit" [class]="trumpSuit">{{ trumpSuit }}</span>
+    </div>
+  </div>
+
+  <!-- Player's hand -->
+  <div class="player-area">
+    <app-player-hand 
+      [cards]="playerHand"
+      [isPlayerTurn]="isPlayerTurn"
+      [gamePhase]="gamePhase"
+      (cardPlayed)="onCardPlayed($event)">
+    </app-player-hand>
+    
+    <div class="player-info">
+      <span>You</span>
+    </div>
+  </div>
+</div>

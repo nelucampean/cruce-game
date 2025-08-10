@@ -1,0 +1,86 @@
+.game-board {
+  display: grid;
+  grid-template-rows: 1fr auto 1fr;
+  height: 100vh;
+  padding: 1rem;
+  background: #0f4c3a;
+  color: white;
+}
+
+.opponent-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.center-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.current-trick {
+  display: flex;
+  gap: 0.5rem;
+  min-height: 100px;
+}
+
+.trump-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+  
+  .trump-suit {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    
+    &.spades, &.clubs { color: black; background: white; }
+    &.hearts, &.diamonds { color: red; background: white; }
+  }
+}
+
+.player-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.opponent-cards {
+  display: flex;
+  gap: -20px; // Overlap cards
+}
+
+.card-back {
+  width: 60px;
+  height: 84px;
+  background: linear-gradient(45deg, #1a1a2e, #16213e);
+  border: 2px solid #0f3460;
+  border-radius: 8px;
+  margin-left: -20px;
+  
+  &:first-child {
+    margin-left: 0;
+  }
+}
+
+.player-info {
+  font-weight: bold;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .game-board {
+    padding: 0.5rem;
+  }
+  
+  .center-area {
+    padding: 1rem;
+  }
+}
