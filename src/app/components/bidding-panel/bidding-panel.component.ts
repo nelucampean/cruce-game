@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Suit } from '../../models/card.model';
 
 @Component({
+    standalone: true,
     selector: 'app-bidding-panel',
     imports: [CommonModule],
     templateUrl: './bidding-panel.component.html',

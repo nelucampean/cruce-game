@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { GameService } from '../../services/game.service';
 
 @Component({
+    standalone: true,
     selector: 'app-score-board',
     imports: [CommonModule],
     templateUrl: './score-board.component.html',

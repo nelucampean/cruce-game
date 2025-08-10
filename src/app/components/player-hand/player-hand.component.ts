@@ -5,6 +5,7 @@ import { GameService } from '../../services/game.service';
 import { CardComponent } from '../card/card.component';
 
 @Component({
+      standalone: true,
     selector: 'app-player-hand',
     imports: [CommonModule, CardComponent],
     templateUrl: './player-hand.component.html',

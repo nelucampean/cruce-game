@@ -7,6 +7,7 @@ import { BiddingPanelComponent } from '../bidding-panel/bidding-panel.component'
 import { CardComponent } from '../card/card.component';
 
 @Component({
+      standalone: true,
     selector: 'app-game-board',
     imports: [
         CommonModule,

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Card, Suit } from '../../models/card.model';
 
 @Component({
+    standalone: true,
     selector: 'app-card',
     imports: [CommonModule],
     templateUrl: './card.component.html',
