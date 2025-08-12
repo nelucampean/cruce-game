@@ -127,7 +127,7 @@ export class PlayerService {
 
   private getBotDifficulty(playerIndex: number): number {
     // Different difficulty levels for variety
-    const difficulties = [1.0, 0.8, 1.2, 0.9]; // Normal, Easy, Hard, Medium
+    const difficulties = [0.3, 0.5, 0.4, 0.6]; // Normal, Easy, Hard, Medium
     return difficulties[playerIndex] || 1.0;
   }
 

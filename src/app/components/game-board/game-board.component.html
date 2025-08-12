@@ -62,7 +62,10 @@
     <!-- Trump suit indicator -->
     <div class="trump-indicator" *ngIf="gameState.trumpSuit">
       <div class="trump-label">Trump:</div>
-      <div class="trump-suit">{{ formatSuitName(gameState.trumpSuit) }}</div>
+      <div class="trump-suit">
+            <img [src]="getCurrentTrumphIcon()" alt="{{ formatSuitName(gameState.trumpSuit) }}" class="trump-icon">
+
+      </div>
     </div>
 
     <!-- Current trick area -->

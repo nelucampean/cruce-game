@@ -125,6 +125,10 @@ export class DeckService {
     return suitNames[suit];
   }
 
+  getSuitGraphicUrl(suit: Suit): string{
+    return `images/suites/icon_${suit.substring(0, 1)}.png`
+  }
+
   // Helper to validate a deck is complete and correct for Cruce
   validateDeck(deck: Card[]): { valid: boolean; errors: string[] } {
     const errors: string[] = [];

@@ -268,6 +268,15 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     return `Current trick: ${descriptions.join(', ')}`;
   }
 
+  getCurrentTrumphIcon(){
+    let suit = this.gameState.trumpSuit;
+    if (suit) {
+      return this.deckService.getSuitGraphicUrl(suit);
+    }
+    // Return a default image or empty string if suit is null
+    return '';
+  }
+
   getGameSummary(): string {
     return this.cruceRules.getGameSummary(this.gameState);
   }

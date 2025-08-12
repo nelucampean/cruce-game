@@ -191,8 +191,13 @@ export class GameService {
     // Add card to current trick
     const updatedTrick = [...state.currentTrick, card];
     const nextPlayer = (state.currentPlayer + 1) % 4;
-
+    
     console.log(`Player ${state.players[state.currentPlayer].name} plays ${card.displayValue} of ${card.suit} (${card.points} points)`);
+
+    if (state.currentTrick.length == 0){
+        this.cruceRulesService.setLeadingPlayer(state.currentPlayer)
+        console.log(`Set first player index  ${state.currentPlayer} name ${state.players[state.currentPlayer].name}`)
+    }
 
     this.gameState.next({
       ...state,
@@ -258,7 +263,7 @@ export class GameService {
     const state = this.gameState.value;
     
     // Use the rules service for correct trick winner determination
-    this.trickWinner = this.cruceRulesService.determineTrickWinner(state.currentTrick, state.trumpSuit);
+    this.trickWinner = this.cruceRulesService.determineTrickWinnerPlayerIndex(state.currentTrick, state.trumpSuit);
     
     // Add debug logging to see what's happening
     const debugInfo = this.cruceRulesService.debugTrickEvaluation(state.currentTrick, state.trumpSuit);

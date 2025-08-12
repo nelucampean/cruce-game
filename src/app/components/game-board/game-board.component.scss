@@ -39,9 +39,14 @@
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     background: rgba(255, 255, 255, 0.2);
-    
-    &.spades, &.clubs { color: black; background: white; }
-    &.hearts, &.diamonds { color: red; background: white; }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .trump-icon {
+      width: 50px;
+      height: 60px;
+      object-fit: contain;
+    }
   }
 }
 

@@ -6,6 +6,8 @@ import { Card, Suit, Player, GameState, CRUCE_RULES } from '../models/card.model
 })
 export class CruceRulesService {
 
+  private leadingPlayerIndex = 0;
+
   constructor() { }
 
   // Get the correct card rank for trick-taking (not the same as points!)
@@ -90,11 +92,15 @@ export class CruceRulesService {
     ).index;
   }
 
+  setLeadingPlayer(index:number){
+    this.leadingPlayerIndex = index
+  }
+
   // Determine the actual player index who won the trick
   // This takes into account who led the trick
-  determineTrickWinnerPlayerIndex(trick: Card[], trumpSuit: Suit | null, leadingPlayer: number): number {
+  determineTrickWinnerPlayerIndex(trick: Card[], trumpSuit: Suit | null): number {
     const trickWinnerPosition = this.determineTrickWinner(trick, trumpSuit);
-    return (leadingPlayer + trickWinnerPosition) % 4;
+    return (this.leadingPlayerIndex + trickWinnerPosition) % 4;
   }
 
   // Calculate points for a completed trick
@@ -269,7 +275,7 @@ export class CruceRulesService {
     });
 
     const trickWinnerPosition = this.determineTrickWinner(trick, trumpSuit);
-    const winnerPlayerIndex = this.determineTrickWinnerPlayerIndex(trick, trumpSuit, leadingPlayer);
+    const winnerPlayerIndex = this.determineTrickWinnerPlayerIndex(trick, trumpSuit);
     
     explanation += `Winner position in trick: ${trickWinnerPosition}, Actual player: ${winnerPlayerIndex} ` +
       `with ${trick[trickWinnerPosition].displayValue} of ${trick[trickWinnerPosition].suit}`;
