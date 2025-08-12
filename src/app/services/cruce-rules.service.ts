@@ -8,6 +8,20 @@ export class CruceRulesService {
 
   constructor() { }
 
+  // Get the correct card rank for trick-taking (not the same as points!)
+  private getCardRank(card: Card): number {
+    // In Cruce, the trick-taking hierarchy is: As > 10 > King > Queen > 9 > 2
+    const rankMap: { [key: number]: number } = {
+      2: 1,   // Doiar (lowest)
+      9: 2,   // Nouar 
+      3: 3,   // Treiar (Queen)
+      4: 4,   // Pătrar (King) 
+      10: 5,  // Zecar
+      11: 6   // As (highest)
+    };
+    return rankMap[card.value] || 0;
+  }
+
   // Validate if a card can be played according to Cruce rules
   isCardPlayable(card: Card, gameState: GameState): boolean {
     const { currentTrick, trumpSuit, currentPlayer, players } = gameState;
@@ -39,6 +53,8 @@ export class CruceRulesService {
   }
 
   // Determine the winner of a completed trick
+  // Returns the position in the trick (0-3), NOT the actual player index
+  // The caller must adjust this based on who led the trick
   determineTrickWinner(trick: Card[], trumpSuit: Suit | null): number {
     if (trick.length !== 4) {
       throw new Error('Trick must have exactly 4 cards');
@@ -49,19 +65,19 @@ export class CruceRulesService {
     // Find highest trump card if any trump was played
     if (trumpSuit) {
       const trumpCards = trick
-        .map((card, index) => ({ card, index }))
+        .map((card, index) => ({ card, index, rank: this.getCardRank(card) }))
         .filter(item => item.card.suit === trumpSuit);
       
       if (trumpCards.length > 0) {
         return trumpCards.reduce((highest, current) => 
-          current.card.value > highest.card.value ? current : highest
+          current.rank > highest.rank ? current : highest
         ).index;
       }
     }
 
     // Find highest card of lead suit
     const leadSuitCards = trick
-      .map((card, index) => ({ card, index }))
+      .map((card, index) => ({ card, index, rank: this.getCardRank(card) }))
       .filter(item => item.card.suit === leadSuit);
 
     if (leadSuitCards.length === 0) {
@@ -70,8 +86,15 @@ export class CruceRulesService {
     }
 
     return leadSuitCards.reduce((highest, current) => 
-      current.card.value > highest.card.value ? current : highest
+      current.rank > highest.rank ? current : highest
     ).index;
+  }
+
+  // Determine the actual player index who won the trick
+  // This takes into account who led the trick
+  determineTrickWinnerPlayerIndex(trick: Card[], trumpSuit: Suit | null, leadingPlayer: number): number {
+    const trickWinnerPosition = this.determineTrickWinner(trick, trumpSuit);
+    return (leadingPlayer + trickWinnerPosition) % 4;
   }
 
   // Calculate points for a completed trick
@@ -183,6 +206,80 @@ export class CruceRulesService {
     });
     
     return marriages;
+  }
+
+  // Compare two cards to determine which wins in a trick context
+  compareCardsForTrick(card1: Card, card2: Card, leadSuit: Suit, trumpSuit: Suit | null): number {
+    // Trump cards always beat non-trump cards
+    const card1IsTrump = trumpSuit && card1.suit === trumpSuit;
+    const card2IsTrump = trumpSuit && card2.suit === trumpSuit;
+    
+    if (card1IsTrump && !card2IsTrump) return 1;  // card1 wins
+    if (card2IsTrump && !card1IsTrump) return -1; // card2 wins
+    
+    // Both trump or both non-trump: compare by rank within suit
+    if (card1IsTrump && card2IsTrump) {
+      // Both trump cards - higher rank wins
+      return this.getCardRank(card1) - this.getCardRank(card2);
+    }
+    
+    // Neither is trump - only lead suit cards can win
+    const card1FollowsLead = card1.suit === leadSuit;
+    const card2FollowsLead = card2.suit === leadSuit;
+    
+    if (card1FollowsLead && !card2FollowsLead) return 1;  // card1 wins
+    if (card2FollowsLead && !card1FollowsLead) return -1; // card2 wins
+    
+    // Both follow lead suit or both are off-suit
+    if (card1FollowsLead && card2FollowsLead) {
+      return this.getCardRank(card1) - this.getCardRank(card2);
+    }
+    
+    // Both are off-suit and neither is trump - first card wins by default
+    return 0;
+  }
+
+  // Get card hierarchy explanation for debugging
+  getCardHierarchyExplanation(): string {
+    return "Cruce card hierarchy (highest to lowest): As (11 pts) > 10 (10 pts) > King/4 (4 pts) > Queen/3 (3 pts) > 9 (0 pts) > 2 (2 pts)";
+  }
+
+  // Debug method to show trick evaluation step by step
+  debugTrickEvaluation(trick: Card[], trumpSuit: Suit | null, leadingPlayer: number = 0): {
+    winner: number;
+    winnerPlayerIndex: number;
+    explanation: string;
+    cardRanks: { card: Card; rank: number; isTrump: boolean; followsLead: boolean; playerIndex: number }[];
+  } {
+    const leadSuit = trick[0].suit;
+    const cardRanks = trick.map((card, index) => ({
+      card,
+      rank: this.getCardRank(card),
+      isTrump: trumpSuit ? card.suit === trumpSuit : false,
+      followsLead: card.suit === leadSuit,
+      playerIndex: (leadingPlayer + index) % 4
+    }));
+
+    let explanation = `Lead suit: ${leadSuit}. Trump: ${trumpSuit || 'None'}. Leading player: ${leadingPlayer}\n`;
+    
+    cardRanks.forEach((item, index) => {
+      explanation += `Player ${item.playerIndex}: ${item.card.displayValue} of ${item.card.suit} ` +
+        `(rank: ${item.rank}, ${item.isTrump ? 'TRUMP' : 'not trump'}, ` +
+        `${item.followsLead ? 'follows lead' : 'off suit'})\n`;
+    });
+
+    const trickWinnerPosition = this.determineTrickWinner(trick, trumpSuit);
+    const winnerPlayerIndex = this.determineTrickWinnerPlayerIndex(trick, trumpSuit, leadingPlayer);
+    
+    explanation += `Winner position in trick: ${trickWinnerPosition}, Actual player: ${winnerPlayerIndex} ` +
+      `with ${trick[trickWinnerPosition].displayValue} of ${trick[trickWinnerPosition].suit}`;
+
+    return {
+      winner: trickWinnerPosition,
+      winnerPlayerIndex,
+      explanation,
+      cardRanks
+    };
   }
 
   // Validate complete game state

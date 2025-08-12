@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { Card, GamePhase, GameState, Player, Suit } from '../models/card.model';
 import { DeckService } from './deck.service';
 import { PlayerService } from './player.service';
+import { CruceRulesService } from './cruce-rules.service'; // ADD THIS IMPORT
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +27,8 @@ export class GameService {
 
   constructor(
     private deckService: DeckService,
-    private playerService: PlayerService
+    private playerService: PlayerService,
+    private cruceRulesService: CruceRulesService  // ADD THIS INJECTION
   ) {}
 
   public testDeck: Card[] = [];
@@ -190,6 +192,8 @@ export class GameService {
     const updatedTrick = [...state.currentTrick, card];
     const nextPlayer = (state.currentPlayer + 1) % 4;
 
+    console.log(`Player ${state.players[state.currentPlayer].name} plays ${card.displayValue} of ${card.suit} (${card.points} points)`);
+
     this.gameState.next({
       ...state,
       players: updatedPlayers,
@@ -232,27 +236,9 @@ export class GameService {
     const state = this.gameState.value;
     
     if (state.phase !== GamePhase.PLAYING) return false;
-    if (state.currentTrick.length === 0) return true; // First card of trick
     
-    const leadSuit = state.currentTrick[0].suit;
-    const playerHand = state.players[state.currentPlayer].hand;
-    
-    // Must follow suit if possible
-    const hasSuit = playerHand.some(c => c.suit === leadSuit);
-    if (hasSuit) {
-      return card.suit === leadSuit;
-    }
-
-    // Must play trump if can't follow suit and has trump
-    if (state.trumpSuit) {
-      const hasTrump = playerHand.some(c => c.suit === state.trumpSuit);
-      if (hasTrump && leadSuit !== state.trumpSuit) {
-        return card.suit === state.trumpSuit;
-      }
-    }
-
-    // Can play any card if can't follow suit and no trump
-    return true;
+    // Use the rules service for consistent logic
+    return this.cruceRulesService.isCardPlayable(card, state);
   }
 
   canAnnounceMarriage(card: Card): boolean {
@@ -270,12 +256,20 @@ export class GameService {
 
   private evaluateTrick() {
     const state = this.gameState.value;
-    this.trickWinner = this.determineTrickWinner(state.currentTrick, state.trumpSuit);
+    
+    // Use the rules service for correct trick winner determination
+    this.trickWinner = this.cruceRulesService.determineTrickWinner(state.currentTrick, state.trumpSuit);
+    
+    // Add debug logging to see what's happening
+    const debugInfo = this.cruceRulesService.debugTrickEvaluation(state.currentTrick, state.trumpSuit);
+    console.log('Trick evaluation:');
+    console.log(debugInfo.explanation);
     
     console.log(`Trick won by ${state.players[this.trickWinner].name}`);
     
     // Calculate points in this trick
     const trickPoints = state.currentTrick.reduce((sum, card) => sum + card.points, 0);
+    console.log(`Trick contains ${trickPoints} points`);
     
     // Award points to winner
     const updatedScores = [...state.scores];
@@ -371,31 +365,10 @@ export class GameService {
     }
   }
 
-  private determineTrickWinner(trick: Card[], trumpSuit: Suit | null): number {
-    const leadSuit = trick[0].suit;
-    
-    // Find highest trump card
-    if (trumpSuit) {
-      const trumpCards = trick
-        .map((card, index) => ({ card, index }))
-        .filter(item => item.card.suit === trumpSuit);
-      
-      if (trumpCards.length > 0) {
-        return trumpCards.reduce((highest, current) => 
-          current.card.value > highest.card.value ? current : highest
-        ).index;
-      }
-    }
-
-    // Find highest card of lead suit
-    const leadSuitCards = trick
-      .map((card, index) => ({ card, index }))
-      .filter(item => item.card.suit === leadSuit);
-
-    return leadSuitCards.reduce((highest, current) => 
-      current.card.value > highest.card.value ? current : highest
-    ).index;
-  }
+  // REMOVE THIS OLD METHOD - it has the bug
+  // private determineTrickWinner(trick: Card[], trumpSuit: Suit | null): number {
+  //   // This method is now handled by CruceRulesService
+  // }
 
   private announceGameWinner(gameScore: number[]) {
     const winner = gameScore[0] >= this.gameState.value.targetScore ? 'Your team' : 'Opponent team';
