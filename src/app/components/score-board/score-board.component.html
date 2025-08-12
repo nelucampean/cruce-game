@@ -1,23 +1,131 @@
-<div class="score-board">
-  <div class="round-info">
-    <span>Round {{ currentRound }}</span>
-  </div>
-  
-  <div class="team-scores">
-    <div class="team">
-      <span class="team-label">Your Team:</span>
-      <span class="team-score">{{ gameScores[0] }}</span>
+<div class="score-board" [class.compact]="compact">
+  <!-- Game Status Header -->
+  <div class="game-status-header">
+    <div class="phase-info">
+      <span class="phase-description">{{ getCurrentPhaseDescription() }}</span>
     </div>
-    <div class="team">
-      <span class="team-label">Opponents:</span>
-      <span class="team-score">{{ gameScores[1] }}</span>
+    <div class="hand-progress" *ngIf="gameState.phase === 'playing'">
+      <span class="hand-summary">{{ getHandSummary() }}</span>
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="getHandProgressPercentage()"></div>
+      </div>
     </div>
   </div>
 
-  <div class="individual-scores" [attr.aria-label]="'Individual player scores'">
-    <div class="player-score" *ngFor="let score of playerScores; let i = index">
-      <span class="player-name">{{ i === 0 ? 'You' : 'Bot ' + i }}</span>
-      <span class="score">{{ score }}</span>
+  <!-- Trump and Bid Information -->
+  <div class="game-info" *ngIf="gameState.phase !== 'finished'">
+    <div class="trump-info" *ngIf="getTrumpSuit()">
+      <span class="trump-label">Trump:</span>
+      <span class="trump-suit">{{ getTrumpSuitName() }}</span>
     </div>
+    <div class="bid-info" *ngIf="gameState.bid > 0">
+      <span class="bid-label">Bid:</span>
+      <span class="bid-value" [class]="getBidStatus()">{{ getCurrentBidInfo() }}</span>
+      <span class="bid-requirement" *ngIf="getBidRequirement()">{{ getBidRequirement() }}</span>
+    </div>
+  </div>
+
+  <!-- Team Scores -->
+  <div class="team-scores">
+    <div class="team" *ngFor="let team of [0, 1]; trackBy: trackByIndex">
+      <div class="team-header">
+        <span class="team-label">{{ getTeamDisplayName(team) }}</span>
+        <span class="team-indicators">
+          <span class="winning-indicator" *ngIf="isWinning(team)">🏆</span>
+          <span class="bidding-indicator" *ngIf="isBidMakingTeam(team)">📢</span>
+        </span>
+      </div>
+      
+      <div class="team-score-container">
+        <span class="team-score" [class]="getTeamScoreClass(team)">
+          {{ formatScore(getTeamScore(team)) }}
+        </span>
+        <span class="target-score">/ {{ gameState.targetScore }}</span>
+      </div>
+      
+      <!-- Progress Bar -->
+      <div class="progress-container">
+        <div class="progress-bar" [class]="getProgressBarClass(team)">
+          <div class="progress-fill" [style.width.%]="getGameProgress(team)"></div>
+        </div>
+      </div>
+      
+      <!-- Current Hand Points -->
+      <div class="hand-points" *ngIf="gameState.phase === 'playing'">
+        <span class="hand-label">Hand:</span>
+        <span class="hand-score">{{ getCurrentHandTeamScore(team) }}</span>
+        <span class="game-points">({{ getCurrentHandGamePoints(team) }} pts)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Individual Player Scores (Expandable) -->
+  <div class="individual-scores-section">
+    <button class="toggle-detailed" 
+            (click)="toggleDetailedScores()" 
+            [attr.aria-expanded]="showDetailedScores"
+            [attr.aria-label]="showDetailedScores ? 'Hide detailed scores' : 'Show detailed scores'">
+      <span>{{ showDetailedScores ? 'Hide' : 'Show' }} Player Details</span>
+      <span class="toggle-icon" [class.rotated]="showDetailedScores">▼</span>
+    </button>
+    
+    <div class="individual-scores" 
+         *ngIf="showDetailedScores" 
+         [@slideDown]
+         [attr.aria-label]="'Individual player scores'">
+      <div class="player-score" 
+           *ngFor="let score of gameState.scores; let i = index; trackBy: trackByIndex">
+        <div class="player-info">
+          <span class="player-name">{{ getPlayerName(i) }}</span>
+          <span class="team-indicator">(Team {{ i % 2 === 0 ? 1 : 2 }})</span>
+        </div>
+        <span class="score">{{ formatScore(getPlayerScore(i)) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marriage Information -->
+  <div class="marriages-section" *ngIf="getAnnouncedMarriages().length > 0">
+    <h4>Announced Marriages</h4>
+    <div class="marriages-list">
+      <div class="marriage" *ngFor="let marriage of getAnnouncedMarriages()">
+        <span class="marriage-player">{{ marriage.player }}</span>
+        <span class="marriage-suit">{{ marriage.suit }}</span>
+        <span class="marriage-value">+{{ marriage.value }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Statistics (Compact Mode) -->
+  <div class="game-stats" *ngIf="!compact && isGameFinished()">
+    <div class="final-result">
+      <h3>Game Complete!</h3>
+      <div class="winner-announcement" *ngIf="getWinningTeam() !== null">
+        🎉 {{ getTeamDisplayName(getWinningTeam()!) }} Wins! 🎉
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Stats Summary -->
+  <div class="quick-stats" *ngIf="!compact">
+    <div class="stat-item">
+      <span class="stat-label">Tricks:</span>
+      <span class="stat-value">{{ getTricksPlayed() }}/6</span>
+    </div>
+    <div class="stat-item" *ngIf="getTricksRemaining() > 0">
+      <span class="stat-label">Remaining:</span>
+      <span class="stat-value">{{ getTricksRemaining() }}</span>
+    </div>
+  </div>
+
+  <!-- Real-time Bid Status -->
+  <div class="bid-status-alert" 
+       *ngIf="gameState.phase === 'playing' && gameState.bid > 0 && getBidStatus() !== 'unknown'"
+       [class.making]="getBidStatus() === 'making'"
+       [class.failing]="getBidStatus() === 'failing'">
+    <span class="alert-icon">{{ getBidStatus() === 'making' ? '✅' : '⚠️' }}</span>
+    <span class="alert-text">
+      {{ getBidStatus() === 'making' ? 'Bid is being made!' : 'Bid is at risk!' }}
+    </span>
   </div>
 </div>

@@ -1,0 +1,74 @@
+<div class="marriage-overlay" *ngIf="show" (click)="onOverlayClick($event)">
+      <div class="marriage-dialog" (click)="$event.stopPropagation()">
+        <div class="dialog-header">
+          <h3>Marriage Announcement</h3>
+          <button class="close-btn" (click)="onCancel()" aria-label="Close dialog">×</button>
+        </div>
+        
+        <div class="dialog-content">
+          <div class="card-info" *ngIf="selectedCard">
+            <p>You're about to play: <strong>{{getCardName(selectedCard)}}</strong></p>
+            <p *ngIf="marriageValue > 0">
+              This card can announce a marriage in {{getSuitName(selectedCard.suit)}} 
+              for <strong>{{marriageValue}} points</strong>
+              <span *ngIf="isTrumpMarriage" class="trump-bonus">(Trump marriage!)</span>
+            </p>
+          </div>
+
+          <div class="marriage-options">
+            <div class="option-card" 
+                 [class.recommended]="shouldRecommendAnnouncement()"
+                 (click)="onAnnounce()">
+              <div class="option-icon">👑</div>
+              <div class="option-text">
+                <h4>Announce Marriage</h4>
+                <p>Gain {{marriageValue}} points immediately</p>
+                <p class="strategy-hint" *ngIf="getAnnouncementAdvice().announce">
+                  <em>{{getAnnouncementAdvice().reason}}</em>
+                </p>
+              </div>
+            </div>
+
+            <div class="option-card" 
+                 [class.recommended]="!shouldRecommendAnnouncement()"
+                 (click)="onPlayWithoutAnnouncement()">
+              <div class="option-icon">🤫</div>
+              <div class="option-text">
+                <h4>Play Without Announcing</h4>
+                <p>Keep marriage secret for now</p>
+                <p class="strategy-hint" *ngIf="!getAnnouncementAdvice().announce">
+                  <em>{{getAnnouncementAdvice().reason}}</em>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="marriage-details" *ngIf="marriagePartner">
+            <h4>Marriage Cards:</h4>
+            <div class="marriage-pair">
+              <span class="card-name">{{getCardName(selectedCard!)}}</span>
+              <span class="plus">+</span>
+              <span class="card-name">{{getCardName(marriagePartner)}}</span>
+            </div>
+          </div>
+
+          <div class="dialog-actions">
+            <button class="btn btn-primary" 
+                    (click)="onAnnounce()"
+                    [class.recommended]="shouldRecommendAnnouncement()">
+              <span class="btn-icon">👑</span>
+              Announce ({{marriageValue}} pts)
+            </button>
+            <button class="btn btn-secondary" 
+                    (click)="onPlayWithoutAnnouncement()"
+                    [class.recommended]="!shouldRecommendAnnouncement()">
+              <span class="btn-icon">🃏</span>
+              Just Play Card
+            </button>
+            <button class="btn btn-cancel" (click)="onCancel()">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>

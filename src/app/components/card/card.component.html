@@ -1,18 +1,34 @@
+<!-- src/app/components/card/card.component.html -->
 <button 
   class="card"
-  [class.playable]="isPlayable"
+  [class.playable]="isPlayable && !showBack"
   [class.selected]="isSelected"
-  [disabled]="!isPlayable"
+  [class.card-back]="showBack"
+  [class.image-loaded]="imageLoaded"
+  [disabled]="!isPlayable || showBack"
   [attr.aria-label]="getCardDescription()"
   [attr.aria-pressed]="isSelected"
+  [style.background-image]="getBackgroundImageStyle()"
   (click)="onClick()"
   (keydown.enter)="onClick()"
   (keydown.space)="onClick()">
   
-  <div class="card-content">
+  <!-- Hidden img element to detect loading errors -->
+  <img 
+    [src]="getImageUrl()"
+    (load)="onImageLoad()"
+    (error)="onImageError($event)"
+    class="hidden-img"
+    style="display: none;">
+  
+  <!-- Fallback content when image fails to load or is loading -->
+  <div class="card-fallback" *ngIf="!showBack && (!imageLoaded || imageError)">
     <div class="card-value">{{ card.displayValue }}</div>
-    <div class="card-suit" [class]="card.suit">
-      {{ getSuitSymbol(card.suit) }}
-    </div>
+    <div class="card-suit">{{ getSuitName(card.suit) }}</div>
+  </div>
+  
+  <!-- Back card indicator -->
+  <div class="card-back-content" *ngIf="showBack && (!imageLoaded || imageError)">
+    <div class="back-pattern">?</div>
   </div>
 </button>

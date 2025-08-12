@@ -1,29 +1,30 @@
-<div class="bidding-panel" *ngIf="isPlayerTurn">
-  <h3>Your Turn to Bid</h3>
-  <p>Current highest bid: {{ currentBid || 'None' }}</p>
-  
-  <div class="bid-options">
-    <button 
-      *ngFor="let bid of bidOptions"
-      class="bid-button"
-      [disabled]="!canBid(bid)"
-      [attr.aria-label]="'Bid ' + bid + ' points'"
-      (click)="selectedBid = bid; makeBid()">
-      {{ bid }}
-    </button>
-  </div>
+    <div class="bidding-panel" *ngIf="isPlayerTurn">
+      <h3>Rândul tău să licitezi</h3>
+      <p>Cea mai mare licitație: {{ currentBid || 'Niciuna' }}</p>
+      <p class="bid-info">Total puncte în joc: 84</p>
+      
+      <div class="bid-options">
+        <button 
+          *ngFor="let bid of bidOptions"
+          class="bid-button"
+          [disabled]="!canBid(bid)"
+          [attr.aria-label]="'Licitează ' + bid + ' puncte'"
+          (click)="selectedBid = bid; makeBid()">
+          {{ bid }}
+        </button>
+      </div>
 
-  <div class="bid-actions">
-    <button 
-      class="pass-button"
-      [attr.aria-label]="'Pass this round'"
-      (click)="pass()">
-      Pass
-    </button>
-  </div>
-</div>
+      <div class="bid-actions">
+        <button 
+          class="pass-button"
+          [attr.aria-label]="'Pas'"
+          (click)="pass()">
+          Pas
+        </button>
+      </div>
+    </div>
 
-<div class="waiting-panel" *ngIf="!isPlayerTurn">
-  <h3>Waiting for other players...</h3>
-  <p>Current highest bid: {{ currentBid || 'None' }}</p>
-</div>
+    <div class="waiting-panel" *ngIf="!isPlayerTurn">
+      <h3>Așteaptă ceilalți jucători...</h3>
+      <p>Cea mai mare licitație: {{ currentBid || 'Niciuna' }}</p>
+    </div>

@@ -52,27 +52,56 @@
   gap: 0.5rem;
 }
 
+// Fixed opponent cards layout
 .opponent-cards {
   display: flex;
-  gap: -20px; // Overlap cards
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 0 20px; // Add padding to prevent cards from being cut off
 }
 
 .card-back {
-  width: 60px;
-  height: 84px;
-  background: linear-gradient(45deg, #1a1a2e, #16213e);
-  border: 2px solid #0f3460;
-  border-radius: 8px;
-  margin-left: -20px;
+  position: relative;
+  margin-left: -25px; // Overlap cards by 25px
+  transition: transform 0.2s ease;
   
   &:first-child {
-    margin-left: 0;
+    margin-left: 0; // First card doesn't have left margin
   }
+  
+  &:hover {
+    transform: translateY(-5px);
+    z-index: 10;
+  }
+  
+  // Ensure each subsequent card appears on top when not hovered
+  &:nth-child(1) { z-index: 1; }
+  &:nth-child(2) { z-index: 2; }
+  &:nth-child(3) { z-index: 3; }
+  &:nth-child(4) { z-index: 4; }
+  &:nth-child(5) { z-index: 5; }
+  &:nth-child(6) { z-index: 6; }
+  &:nth-child(7) { z-index: 7; }
+  &:nth-child(8) { z-index: 8; }
+  
+  // Remove the old styling that was conflicting
+  // width: 60px;
+  // height: 84px;
+  // background: linear-gradient(45deg, #1a1a2e, #16213e);
+  // border: 2px solid #0f3460;
+  // border-radius: 8px;
 }
 
 .player-info {
   font-weight: bold;
   text-align: center;
+  
+  .card-count {
+    margin-left: 0.5rem;
+    opacity: 0.8;
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -82,5 +111,23 @@
   
   .center-area {
     padding: 1rem;
+  }
+  
+  .opponent-cards {
+    padding: 0 15px;
+  }
+  
+  .card-back {
+    margin-left: -20px; // Less overlap on mobile
+    
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .card-back {
+    margin-left: -15px; // Even less overlap on very small screens
   }
 }
