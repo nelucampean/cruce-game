@@ -1,138 +1,876 @@
-.game-board {
-  display: grid;
-  grid-template-rows: 1fr auto 1fr;
-  height: 100vh;
-  padding: 1rem;
-  background: #0f4c3a;
-  color: white;
-}
+// ================================
+// VARIABLES AND MIXINS
+// ================================
 
-.opponent-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.center-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 2rem;
-}
-
-.current-trick {
-  display: flex;
-  gap: 0.5rem;
-  min-height: 100px;
-}
-
-.trump-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: bold;
+:root {
+  --border-radius-sm: 4px;
+  --border-radius-md: 6px;
+  --border-radius-lg: 8px;
+  --border-radius-xl: 12px;
   
-  .trump-suit {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.2);
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  
+  --font-xs: 0.6rem;
+  --font-sm: 0.7rem;
+  --font-md: 0.8rem;
+  --font-lg: 0.9rem;
+  --font-xl: 1rem;
+  --font-xxl: 1.2rem;
+  
+  --z-background: 1;
+  --z-players: 2;
+  --z-cards: 3;
+  --z-trick: 5;
+  --z-ui: 10;
+  --z-header: 15;
+  --z-scoreboard: 20;
+  --z-overlay: 100;
+  --z-modal: 1000;
+  
+  --color-accent: #ffeb3b;
+  --color-current-player: #2196F3;
+  --color-success: #4CAF50;
+  --color-gold: #d4af37;
+}
+
+@mixin glass-effect($opacity: 0.1) {
+  background: rgba(255, 255, 255, $opacity);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@mixin button-base {
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-size: var(--font-sm);
+}
+
+@mixin card-base-size {
+  width: 80px;
+  height: 125px;
+}
+
+// ================================
+// MAIN LAYOUT
+// ================================
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cruce-game-board {
+  display: grid;
+  grid-template-areas:
+    "header header header"
+    "opponent-left teammate opponent-right"
+    "opponent-left center opponent-right"
+    "player player player";
+  grid-template-rows: auto auto 2fr auto;
+  grid-template-columns: 1fr 2fr 1fr;
+  width: 100%;
+  height: 100%;
+  padding: var(--spacing-xs);
+  background: linear-gradient(135deg, #0f4c3a 0%, #1a5f4a 100%);
+  color: white;
+  gap: var(--spacing-xs);
+  overflow: hidden;
+}
+
+// ================================
+// HEADER
+// ================================
+
+.game-header {
+  grid-area: header;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  @include glass-effect(0.1);
+  border-radius: var(--border-radius-md);
+  min-height: 50px;
+  z-index: var(--z-header);
+
+  .game-title {
+    flex: 1;
+    min-width: 0;
+    
+    h1 {
+      margin: 0;
+      font-size: var(--font-xxl);
+      line-height: 1.2;
+    }
+
+    .game-status {
+      font-size: var(--font-sm);
+      opacity: 0.9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+      max-width: 150px;
+      line-height: 1.2;
+    }
+  }
+
+  .game-controls {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    .trump-icon {
-      width: 50px;
-      height: 60px;
-      object-fit: contain;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+
+    .btn {
+      @include button-base;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      @include glass-effect(0.2);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .icon {
+        font-size: var(--font-md);
+      }
     }
   }
 }
 
-.player-area {
+// ================================
+// MAIN GAME AREA
+// ================================
+
+.game-main {
+  grid-area: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  position: relative;
+  padding: var(--spacing-xs);
+  overflow: visible;
+  z-index: var(--z-ui);
 }
 
-// Fixed opponent cards layout
-.opponent-cards {
+.trump-indicator {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: rgba(0, 0, 0, 0.8);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-sm);
+  z-index: var(--z-ui);
+
+  .trump-icon {
+    width: 20px;
+    height: 24px;
+    object-fit: contain;
+  }
+}
+
+// ================================
+// TRICK AREA
+// ================================
+.trick-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  z-index: var(--z-trick);
+  position: relative;
+  margin: var(--spacing-sm) 0;
+  flex-shrink: 0;
+
+  .trick-label {
+    font-weight: bold;
+    font-size: var(--font-lg);
+    margin: 0;
+  }
+
+  .trick-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: var(--spacing-sm); // Increased gap
+    min-width: 180px; // Increased from 140px
+    min-height: 140px; // Increased from 110px
+    position: relative;
+    place-items: center;
+
+    // Cross formation positioning
+    app-card:nth-child(1) { grid-column: 2; grid-row: 1; } // Top
+    app-card:nth-child(2) { grid-column: 1; grid-row: 2; } // Left
+    app-card:nth-child(3) { grid-column: 2; grid-row: 3; } // Bottom
+    app-card:nth-child(4) { grid-column: 3; grid-row: 2; } // Right
+
+    app-card {
+      transform: scale(0.9); // Increased from 0.8
+      transition: transform 0.2s ease;
+    }
+
+    &.complete {
+      animation: pulseComplete 0.8s ease-in-out;
+      
+      app-card {
+        transform: scale(0.95); // Increased from 0.85
+        border-color: var(--color-success);
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+      }
+    }
+  }
+
+  .card-placeholder {
+    width: 60px; // Increased from 48px
+    height: 84px; // Increased from 67px
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    border-radius: var(--border-radius-md);
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0.9); // Increased from 0.8
+  }
+
+  .trick-description {
+    font-size: var(--font-sm);
+    text-align: center;
+    opacity: 0.8;
+    max-width: 200px;
+    line-height: 1.2;
+  }
+}
+
+
+  .trick-description {
+    font-size: var(--font-sm);
+    text-align: center;
+    opacity: 0.8;
+    max-width: 200px;
+    line-height: 1.2;
+  }
+
+
+// ================================
+// PLAYER POSITIONING
+// ================================
+
+%player-base {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  z-index: var(--z-players);
+  align-self: start;
+  justify-self: center;
+}
+
+.opponent-left {
+  @extend %player-base;
+  grid-area: opponent-left;
+  justify-self: start;
+  align-self: center;
+  transform: rotate(-10deg);
+  transform-origin: center;
+}
+
+.opponent-right {
+  @extend %player-base;
+  grid-area: opponent-right;
+  justify-self: end;
+  align-self: center;
+  transform: rotate(10deg);
+  transform-origin: center;
+}
+
+.teammate {
+  @extend %player-base;
+  grid-area: teammate;
+  justify-self: center;
+  align-self: start;
+}
+
+// ================================
+// PLAYER INFO
+// ================================
+
+.player-info {
+  text-align: center;
+  font-size: var(--font-sm);
+  background: rgba(0, 0, 0, 0.3);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  white-space: nowrap;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+
+  .player-name {
+    font-weight: bold;
+    display: block;
+  }
+
+  .card-count {
+    opacity: 0.8;
+    margin-left: var(--spacing-sm);
+  }
+
+  .player-score {
+    margin-left: var(--spacing-sm);
+    color: var(--color-accent);
+    font-weight: bold;
+  }
+
+  .current-score {
+    color: var(--color-success);
+    font-weight: bold;
+  }
+}
+
+// ================================
+// CURRENT PLAYER INDICATION
+// ================================
+
+%current-player-styles {
+  .player-info {
+    border: 2px solid var(--color-current-player);
+    background: rgba(33, 150, 243, 0.2);
+    animation: currentPlayerPulse 2s infinite;
+    box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+  }
+}
+
+.opponent-left.current-player,
+.opponent-right.current-player,
+.teammate.current-player,
+.player-area.current-player {
+  @extend %current-player-styles;
+}
+
+.opponent-left.current-player,
+.opponent-right.current-player,
+.teammate.current-player {
+  .opponent-cards app-card,
+  .teammate-cards app-card {
+    border: 2px solid var(--color-current-player) !important;
+    box-shadow: 0 0 8px rgba(33, 150, 243, 0.6) !important;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border: 2px solid var(--color-current-player);
+      border-radius: var(--border-radius-lg);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    &:hover {
+      box-shadow: 0 0 12px rgba(33, 150, 243, 0.8) !important;
+    }
+  }
+}
+
+// ================================
+// CARD LAYOUTS
+// ================================
+
+
+// Updated card container base
+%card-container-base {
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: 0 20px; // Add padding to prevent cards from being cut off
+  padding: 8px 12px; // Increased padding
+  min-height: 100px; // Increased height to accommodate larger cards
+  overflow: visible;
 }
 
-.card-back {
-  position: relative;
-  margin-left: -25px; // Overlap cards by 25px
-  transition: transform 0.2s ease;
-  
-  &:first-child {
-    margin-left: 0; // First card doesn't have left margin
-  }
-  
-  &:hover {
-    transform: translateY(-5px);
-    z-index: 10;
-  }
-  
-  // Ensure each subsequent card appears on top when not hovered
-  &:nth-child(1) { z-index: 1; }
-  &:nth-child(2) { z-index: 2; }
-  &:nth-child(3) { z-index: 3; }
-  &:nth-child(4) { z-index: 4; }
-  &:nth-child(5) { z-index: 5; }
-  &:nth-child(6) { z-index: 6; }
-  &:nth-child(7) { z-index: 7; }
-  &:nth-child(8) { z-index: 8; }
-  
-  // Remove the old styling that was conflicting
-  // width: 60px;
-  // height: 84px;
-  // background: linear-gradient(45deg, #1a1a2e, #16213e);
-  // border: 2px solid #0f3460;
-  // border-radius: 8px;
-}
+.opponent-cards,
+.teammate-cards {
+  @extend %card-container-base;
 
-.player-info {
-  font-weight: bold;
-  text-align: center;
-  
-  .card-count {
-    margin-left: 0.5rem;
-    opacity: 0.8;
-    font-size: 0.9rem;
-  }
-}
+  app-card {
+   // @include card-base-size;
+    position: relative;
+    margin-left: -20px; // Reduced overlap from -24px for better visibility
+    transform: scale(0.35); // Increased from 0.5 to 0.7
+    transform-origin: center center;
+    transition: all 0.2s ease;
+    z-index: 1;
+    overflow: visible;
 
-@media (max-width: 768px) {
-  .game-board {
-    padding: 0.5rem;
-  }
-  
-  .center-area {
-    padding: 1rem;
-  }
-  
-  .opponent-cards {
-    padding: 0 15px;
-  }
-  
-  .card-back {
-    margin-left: -20px; // Less overlap on mobile
-    
     &:first-child {
       margin-left: 0;
+    }
+
+    &:hover {
+      transform: scale(0.75) translateY(-5px); // Increased from 0.55
+      z-index: var(--z-ui);
+    }
+
+    // Stacking order for visibility
+    @for $i from 1 through 8 {
+      &:nth-child(#{$i}) {
+        z-index: 9 - $i;
+      }
+    }
+  }
+}
+  
+.players-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  
+  .teammate {
+    align-self: center;
+  }
+  
+  .opponents-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+  }
+}
+
+// ================================
+// PLAYER AREA
+// ================================
+
+.player-area {
+  grid-area: player;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  @include glass-effect(0.05);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-xl);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  z-index: var(--z-cards);
+
+  .player-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    font-size: var(--font-md);
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .btn-suggestion {
+      @include button-base;
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: rgba(255, 235, 59, 0.2);
+      border: 1px solid var(--color-accent);
+      border-radius: var(--border-radius-md);
+
+      &:hover,
+      &.active {
+        background: var(--color-accent);
+        color: #333;
+      }
+
+      .icon {
+        margin-right: var(--spacing-xs);
+      }
+    }
+
+    .hand-summary {
+      display: flex;
+      gap: var(--spacing-sm);
+      font-size: var(--font-md);
+      opacity: 0.8;
+    }
+  }
+
+  .marriages-available {
+    background: rgba(212, 175, 55, 0.2);
+    border: 1px solid var(--color-gold);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-md);
+    color: var(--color-gold);
+
+    .marriage-icon {
+      margin-right: var(--spacing-xs);
+    }
+  }
+}
+
+// ================================
+// PLAYER HAND
+// ================================
+/*
+app-player-hand {
+  width: 100%;
+  .player-hand {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    flex-wrap: nowrap;
+    overflow-x: auto;
+
+    app-card {
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-10px) scale(1.05);
+        z-index: var(--z-ui);
+      }
+
+      &.selected {
+        transform: translateY(-15px) scale(1.1);
+        box-shadow: 0 5px 20px rgba(33, 150, 243, 0.8);
+      }
+    }
+  }
+}
+*/
+// ================================
+// UI COMPONENTS
+// ================================
+
+app-score-board {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: var(--z-scoreboard);
+  max-width: 200px;
+}
+
+app-bidding-panel {
+  .bidding-panel {
+    min-width: 250px;
+    padding: var(--spacing-lg);
+    
+    .bid-options {
+      gap: var(--spacing-xs);
+      
+      .bid-button {
+        padding: var(--spacing-sm);
+        min-width: 40px;
+        font-size: var(--font-lg);
+      }
+    }
+  }
+}
+
+.game-messages {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-overlay);
+  background: rgba(0, 0, 0, 0.8);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  max-width: 90vw;
+  text-align: center;
+
+  .message {
+    font-size: var(--font-lg);
+    margin: var(--spacing-xs) 0;
+  }
+}
+
+.game-help {
+  position: fixed;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  max-width: 250px;
+  max-height: 60vh;
+  overflow-y: auto;
+  z-index: 150;
+
+  .help-content h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+  }
+
+  .hand-analysis ul,
+  .play-suggestion p {
+    font-size: var(--font-md);
+  }
+}
+
+// ================================
+// OVERLAYS
+// ================================
+
+.marriage-overlay {
+  padding: var(--spacing-lg);
+
+  .marriage-dialog {
+    width: 95%;
+    max-width: 400px;
+  }
+}
+
+.game-finished-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+
+  .game-results {
+    background: white;
+    border-radius: var(--border-radius-xl);
+    padding: 2rem;
+    text-align: center;
+    color: #333;
+    max-width: 90vw;
+
+    .final-scores {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+
+      .team-result {
+        padding: var(--spacing-lg);
+        border-radius: var(--border-radius-lg);
+        background: #f8f9fa;
+
+        &.winner {
+          background: #d4edda;
+          border: 2px solid #28a745;
+        }
+
+        .final-score {
+          font-size: 2rem;
+          font-weight: bold;
+          color: #007bff;
+        }
+
+        .winner-badge {
+          font-size: 1.2rem;
+          margin-top: var(--spacing-sm);
+        }
+      }
+    }
+  }
+}
+
+// ================================
+// ANIMATIONS
+// ================================
+
+@keyframes currentPlayerPulse {
+  0%, 100% { 
+    box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+    border-color: var(--color-current-player);
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(33, 150, 243, 0.8);
+    border-color: #1976D2;
+  }
+}
+
+@keyframes pulseComplete {
+  0%, 100% { 
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(0.85);
+    opacity: 0.8;
+  }
+}
+
+// ================================
+// RESPONSIVE DESIGN
+// ================================
+
+@media (max-width: 768px) {
+  .cruce-game-board {
+    padding: 0.1rem;
+    gap: 0.1rem;
+    grid-template-rows: auto auto 2fr auto;
+  }
+
+  .game-header {
+    padding: 0.2rem 0.4rem;
+    min-height: 45px;
+    
+    .game-title {
+      h1 { font-size: var(--font-xl); }
+      .game-status { 
+        font-size: var(--font-xs);
+        max-width: 120px;
+      }
+    }
+    
+    .btn {
+      padding: 0.2rem 0.4rem;
+      font-size: var(--font-xs);
+    }
+  }
+
+  .trick-area {
+    gap: var(--spacing-xs);
+    
+   .trick-cards {
+      min-width: 150px; // Increased from 120px
+      min-height: 120px; // Increased from 95px
+      gap: 0.3rem; // Slightly larger gap
+       app-card { 
+        transform: scale(0.8); // Increased from 0.7
+      }
+      &.complete app-card { 
+        transform: scale(0.85); // Increased from 0.75
+      }
+    }
+    
+    .card-placeholder {
+      width: 54px; // Increased from 42px
+      height: 75px; // Increased from 59px
+      transform: scale(0.8); // Increased from 0.7
+    }
+  }
+
+  .opponent-cards,
+  .teammate-cards {
+    app-card {
+      transform: scale(0.4); // Increased from 0.4
+      margin-left: -25px; // Adjusted from -32px
+      
+      &:hover { 
+        transform: scale(0.65) translateY(-5px); // Increased from 0.45
+      }
+    }
+  }
+
+  .player-area {
+    padding: 0.4rem;
+    gap: 0.4rem;
+  }
+
+  .trump-indicator {
+    font-size: var(--font-xs);
+    padding: 0.2rem 0.4rem;
+    
+    .trump-icon {
+      width: 16px;
+      height: 20px;
     }
   }
 }
 
 @media (max-width: 480px) {
-  .card-back {
-    margin-left: -15px; // Even less overlap on very small screens
+  .cruce-game-board {
+    grid-template-areas:
+      "header header"
+      "opponent-left opponent-right"
+      "center center"
+      "teammate teammate"
+      "player player";
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto 2fr auto auto;
+    padding: 0.05rem;
+    gap: 0.05rem;
+  }
+
+  .opponent-left,
+  .opponent-right {
+    transform: none;
+    padding: 0.1rem;
+  }
+  
+  .teammate {
+    padding: 0.1rem;
+  }
+
+  .trick-area .trick-cards {
+    min-width: 130px; // Increased from 100px
+    min-height: 100px; // Increased from 80px
+    
+    app-card { 
+      transform: scale(0.35); // Increased from 0.6
+    }
+  }
+
+  .opponent-cards,
+  .teammate-cards {
+    app-card {
+      transform: scale(0.35); // Increased from 0.35
+      margin-left: -30px; // Adjusted from -36px
+      
+      &:hover { 
+        transform: scale(0.55) translateY(-3px); // Increased from 0.4
+      }
+    }
+  }
+
+  .game-header {
+    min-height: 40px;
+    
+    .game-title {
+      h1 { font-size: var(--font-lg); }
+      .game-status { 
+        font-size: 0.5rem;
+        max-width: 100px;
+      }
+    }
   }
 }
+
+
+
+// Touch device optimizations
+@media (hover: none) and (pointer: coarse) {
+  .opponent-cards,
+  .teammate-cards {
+    app-card:hover {
+      transform: scale(0.35); // Remove hover effects on touch devices
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .opponent-cards,
+    .teammate-cards {
+      app-card:hover { transform: scale(0.4); }
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .opponent-cards,
+    .teammate-cards {
+      app-card:hover { transform: scale(0.35); }
+    }
+  }
+}
+/*
+.opponent-left { background: red !important; }
+.opponent-right { background: blue !important; }
+.teammate { background: green !important; }
+.game-main { background: yellow !important; }
+*/

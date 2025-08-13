@@ -1,34 +1,39 @@
-<!-- src/app/components/card/card.component.html -->
 <button 
-  class="card"
-  [class.playable]="isPlayable && !showBack"
-  [class.selected]="isSelected"
-  [class.card-back]="showBack"
-  [class.image-loaded]="imageLoaded"
-  [disabled]="!isPlayable || showBack"
-  [attr.aria-label]="getCardDescription()"
+  type="button"
+  [class]="getCardClasses()"
+  [disabled]="disabled || showBack"
+  [attr.aria-label]="getAriaLabel()"
   [attr.aria-pressed]="isSelected"
+  [attr.tabindex]="getTabIndex()"
   [style.background-image]="getBackgroundImageStyle()"
-  (click)="onClick()"
-  (keydown.enter)="onClick()"
-  (keydown.space)="onClick()">
+  (click)="onClick($event)"
+  (keydown)="onKeyDown($event)"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+  (focus)="onMouseEnter()"
+  (blur)="onMouseLeave()">
   
-  <!-- Hidden img element to detect loading errors -->
+  <!-- Hidden img for preloading and error detection -->
   <img 
     [src]="getImageUrl()"
+    [alt]="getCardDescription()"
     (load)="onImageLoad()"
     (error)="onImageError($event)"
     class="hidden-img"
-    style="display: none;">
+    loading="lazy">
   
-  <!-- Fallback content when image fails to load or is loading -->
-  <div class="card-fallback" *ngIf="!showBack && (!imageLoaded || imageError)">
-    <div class="card-value">{{ card.displayValue }}</div>
-    <div class="card-suit">{{ getSuitName(card.suit) }}</div>
+  <!-- Fallback content for card face -->
+  <div class="card-fallback" *ngIf="shouldShowCardContent()">
+    <div class="card-value" [style.color]="getSuitColor()">
+      {{ getCardValueDisplay() }}
+    </div>
+    <div class="card-suit" [style.color]="getSuitColor()">
+      {{ getSuitSymbol() }}
+    </div>
   </div>
   
-  <!-- Back card indicator -->
-  <div class="card-back-content" *ngIf="showBack && (!imageLoaded || imageError)">
+  <!-- Back card content -->
+  <div class="card-back-content" *ngIf="shouldShowBackContent()">
     <div class="back-pattern">?</div>
   </div>
 </button>

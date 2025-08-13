@@ -126,7 +126,7 @@ export class DeckService {
   }
 
   getSuitGraphicUrl(suit: Suit): string{
-    return `images/suites/icon_${suit.substring(0, 1)}.png`
+    return `/images/suites/icon_${suit.substring(0, 1)}.png`
   }
 
   // Helper to validate a deck is complete and correct for Cruce

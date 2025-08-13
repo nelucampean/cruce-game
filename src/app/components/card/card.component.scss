@@ -1,125 +1,597 @@
-// src/app/components/card/card.component.scss
+// ================================
+// CARD COMPONENT VARIABLES
+// ================================
+
+:root {
+  --card-width-base: 80px;
+  --card-height-base: 125px;
+  --card-border-radius: 8px;
+  --card-border-width: 2px;
+  
+  --card-scale-small: 0.75;
+  --card-scale-medium: 1;
+  --card-scale-large: 1.25;
+  
+  --card-hover-lift: -5px;
+  --card-selected-lift: -10px;
+  
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-quick: all 0.2s ease;
+}
+
+// ================================
+// MIXINS
+// ================================
+
+@mixin card-size($width, $height) {
+  width: $width;
+  height: $height;
+}
+
+// Simplified mixin - handle CSS variables properly
+@mixin card-state($border-color, $shadow-color, $lift: 0) {
+  border-color: $border-color;
+  
+  @if $lift == 0 {
+    box-shadow: 0 0px 0px rgba($shadow-color, 0.4);
+  } @else if unitless($lift) {
+    // Handle numeric values
+    $abs-lift: abs($lift);
+    box-shadow: 0 #{$abs-lift}px #{$abs-lift * 2}px rgba($shadow-color, 0.4);
+    transform: translateY(#{$lift}px) scale(1.02);
+  } @else {
+    // Handle CSS variables - use calc() for calculations
+    box-shadow: 0 calc(-1 * #{$lift}) calc(-2 * #{$lift}) rgba($shadow-color, 0.4);
+    transform: translateY(#{$lift}) scale(1.02);
+  }
+}
+
+@mixin card-hover($scale: 1.02, $lift: var(--card-hover-lift)) {
+  transform: translateY(#{$lift}) scale(#{$scale});
+  z-index: var(--z-cards);
+}
+
+// ================================
+// BASE CARD STYLES
+// ================================
+
 .card {
+  // Base dimensions - use fixed values to ensure visibility
   width: 80px;
   height: 125px;
+  min-width: 80px;
+  min-height: 125px;
+  
+  // Layout properties
+  position: relative;
+  display: block;
+  padding: 0;
   border: 2px solid #ddd;
   border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  padding: 0;
   background: white;
-  overflow: hidden;
+  cursor: pointer;
+  overflow: visible; // Changed from hidden to visible
+  box-sizing: border-box;
+  flex-shrink: 0;
   
-  // Background image properties
+  // Visual properties
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   
-  &:hover:not(:disabled) {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  }
+  // Interaction
+  user-select: none;
+  -webkit-user-select: none;
+  transition: all 0.3s ease;
   
-  &.playable {
-    border-color: #4CAF50;
-    
-    &:hover {
-      border-color: #45a049;
-    }
-  }
+  // Remove 3D properties that might cause issues
+  transform-style: flat;
   
-  &.selected {
-    border-color: #2196F3;
-    transform: translateY(-10px);
-    box-shadow: 0 5px 20px rgba(33, 150, 243, 0.5);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  // When image is loaded, hide fallback content
-  &.image-loaded {
-    .card-fallback,
-    .card-back-content {
-      display: none;
-    }
-  }
-  
-  // Card back styling
-  &.card-back {
-    background-color: #8B4513;
-    
-    &:not(.image-loaded) {
-      background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #8B4513 100%);
-    }
+  // Base hover state
+  &:hover:not(:disabled):not(.disabled) {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    z-index: 10;
   }
 }
 
-.card-fallback {
+// ================================
+// CARD STATES
+// ================================
+
+.card.playable {
+  @include card-state(var(--color-success), rgb(76, 175, 80));
+  
+  &:hover {
+    @include card-hover(1.05, -8px);
+    border-color: #45a049;
+    box-shadow: 0 8px 16px rgba(76, 175, 80, 0.4);
+    transform: translateY(-8px) scale(1.05);
+  }
+}
+
+.card.selected {
+  border-color: var(--color-current-player);
+  transform: translateY(var(--card-selected-lift)) scale(1.08);
+  box-shadow: 0 10px 30px rgba(33, 150, 243, 0.6);
+  z-index: calc(var(--z-cards) + 10);
+}
+
+.card.trump {
+  border: 5px;
+  border-style: groove;
+  border-color: goldenrod;
+
+}
+/*
+.card.trump {
+  @include card-state(var(--color-gold), rgb(212, 175, 55));
+  
+  background: linear-gradient(145deg, #ffffff 0%, #fff8dc 100%);
+  
+  &::after {
+    content: "👑";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 12px;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 10;
+  }
+    
+}
+*/
+.card.marriage-eligible {
+  @include card-state(#e91e63, rgb(233, 30, 99));
+  
+  &::before {
+    content: "💍";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 10px;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 10;
+  }
+}
+
+.card.highlighted {
+  @include card-state(#ff9800, rgb(255, 152, 0));
+  box-shadow: 0 0 12px rgba(255, 152, 0, 0.6);
+}
+
+.card.winner {
+  @include card-state(var(--color-success), rgb(76, 175, 80));
+  animation: pulseWinner 1s infinite;
+  border: 5px;
+  border-color: #45a049;
+  border-style: groove;
+}
+
+// ================================
+// DISABLED & BACK STATES
+// ================================
+
+.card.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(30%);
+  &:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.card.card-back {
+  //background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+  border-color: #654321;
+  scale: 3;
+  &:hover {
+    @include card-hover(0.5, -3px);
+  }
+}
+
+// ================================
+// SIZE VARIANTS
+// ================================
+
+.card-small,
+.card[size="small"] {
+  width: 60px !important;
+  height: 94px !important;
+  min-width: 60px !important;
+  min-height: 94px !important;
+  
+  .card-fallback .card-value { font-size: 1.1rem !important; }
+  .card-fallback .card-suit { font-size: 0.7rem !important; }
+  .card-back-content .back-pattern { font-size: 1.5rem !important; }
+  &::after, &::before { font-size: 10px !important; }
+}
+
+.card-medium,
+.card[size="medium"] {
+  width: 80px !important;
+  height: 125px !important;
+  min-width: 80px !important;
+  min-height: 125px !important;
+  
+  .card-fallback .card-value { font-size: 1.4rem !important; }
+  .card-fallback .card-suit { font-size: 0.9rem !important; }
+  .card-back-content .back-pattern { font-size: 2rem !important; }
+  &::after, &::before { font-size: 12px !important; }
+}
+
+.card-large,
+.card[size="large"] {
+  width: 100px !important;
+  height: 156px !important;
+  min-width: 100px !important;
+  min-height: 156px !important;
+  
+  .card-fallback .card-value { font-size: 1.8rem !important; }
+  .card-fallback .card-suit { font-size: 1.1rem !important; }
+  .card-back-content .back-pattern { font-size: 2.5rem !important; }
+  &::after, &::before { font-size: 16px !important; }
+}
+
+// ================================
+// FALLBACK CONTENT - ALWAYS VISIBLE
+// ================================
+
+.card-fallback,
+.card-back-content {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
+  inset: 0;
+  display: flex !important;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  border-radius: calc(var(--card-border-radius) - var(--card-border-width));
+  z-index: 5;
+}
+
+.card-fallback {
   background: white;
   color: black;
   font-weight: bold;
-  border-radius: 6px;
   
   .card-value {
     font-size: 1.4rem;
     font-weight: bold;
     margin-bottom: 4px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    line-height: 1;
   }
   
   .card-suit {
     font-size: 0.9rem;
     color: #666;
+    font-weight: 500;
+    line-height: 1;
   }
 }
 
 .card-back-content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: inherit;
   
   .back-pattern {
     font-size: 2rem;
     color: #654321;
     font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    line-height: 1;
   }
 }
+
+// Suit-specific colors for fallback
+.card.suit-rosu .card-fallback .card-value,
+.card.suit-rosu .card-fallback .card-suit,
+.card.suit-duba .card-fallback .card-value,
+.card.suit-duba .card-fallback .card-suit {
+  color: #d32f2f !important;
+}
+
+// Card back content always visible
+.card.card-back {
+  .card-back-content {
+    display: flex !important;
+    z-index: 10;
+  }
+  
+  .card-fallback {
+    display: none !important;
+  }
+}
+
+// Fallback content visible when no image or when image fails
+.card:not(.image-loaded) {
+  .card-fallback {
+    display: flex !important;
+    z-index: 10;
+  }
+}
+
+// When image loads successfully, hide fallback (but not for card backs)
+.card.image-loaded:not(.card-back) {
+  .card-fallback {
+    display: none !important;
+  }
+}
+
+
+
+// ================================
+// ANIMATIONS
+// ================================
+
+@keyframes pulseWinner {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(76, 175, 80, 1);
+  }
+}
+
+@keyframes cardDeal {
+  from {
+    opacity: 0;
+    transform: translateY(20px) rotate(10deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+@keyframes cardPlay {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.card.dealing {
+  animation: cardDeal 0.5s ease-out;
+}
+
+.card.playing {
+  animation: cardPlay 0.3s ease-out;
+}
+
+// ================================
+// ACCESSIBILITY
+// ================================
+
+.card:focus,
+.card:focus-visible {
+  outline: 3px solid var(--color-current-player);
+  outline-offset: 2px;
+  border-color: var(--color-current-player);
+}
+
+// ================================
+// RESPONSIVE DESIGN - UPDATED
+// ================================
+
+@media (max-width: 768px) {
+  :root {
+    --card-hover-lift: -4px;
+    --card-selected-lift: -8px;
+    --card-border-width: 1px;
+  }
+  
+  .card {
+    &:hover:not(:disabled):not(.disabled) {
+      @include card-hover(1.02, var(--card-hover-lift));
+    }
+    
+    &.selected {
+      transform: translateY(var(--card-selected-lift)) scale(1.06);
+    }
+    
+    &.playable:hover {
+      @include card-hover(1.04, -6px);
+    }
+  }
+  
+  // Better mobile scaling for opponent cards
+  .opponent-cards,
+  .teammate-cards {
+    app-card,
+    .card {
+      transform: scale(0.4) !important; // Back to original mobile scaling
+      margin-left: -32px !important; // Original overlap
+      
+      &.card-back,
+      &.trump,
+      &.selected,
+      &.highlighted {
+        transform: scale(0.4) !important;
+      }
+      
+      .card-fallback {
+        .card-value { font-size: 1.2rem !important; } // Larger text
+        .card-suit { font-size: 0.8rem !important; }
+      }
+      
+      .card-back-content .back-pattern {
+        font-size: 1.8rem !important; // Larger pattern
+      }
+      
+      &:hover:not(:disabled):not(.disabled) {
+        transform: scale(0.45) translateY(-5px) !important;
+      }
+      
+      &.card-back:hover:not(:disabled):not(.disabled),
+      &.trump:hover:not(:disabled):not(.disabled) {
+        transform: scale(0.45) translateY(-5px) !important;
+      }
+    }
+  }
+  
+  // Better mobile scaling for trick cards
+  .trick-cards .card {
+    transform: scale(0.7) !important; // Decreased from 0.8
+    
+    .card-fallback {
+      .card-value { font-size: 1.3rem !important; }
+      .card-suit { font-size: 0.9rem !important; }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --card-hover-lift: -3px;
+    --card-selected-lift: -6px;
+  }
+  
+  .card {
+    &.selected {
+      transform: translateY(var(--card-selected-lift)) scale(1.04);
+    }
+  }
+  
+  // Even better scaling for small screens
+  .opponent-cards,
+  .teammate-cards {
+    app-card,
+    .card {
+      transform: scale(0.35) !important; // Back to original small screen scaling
+      margin-left: -36px !important; // Original overlap
+      
+      &.card-back,
+      &.trump,
+      &.selected,
+      &.highlighted {
+        transform: scale(0.35) !important;
+      }
+      
+      .card-fallback {
+        .card-value { font-size: 1.1rem !important; }
+        .card-suit { font-size: 0.7rem !important; }
+      }
+      
+      .card-back-content .back-pattern {
+        font-size: 1.5rem !important;
+      }
+      
+      &:hover:not(:disabled):not(.disabled) {
+        transform: scale(0.4) translateY(-3px) !important;
+      }
+      
+      &.card-back:hover:not(:disabled):not(.disabled),
+      &.trump:hover:not(:disabled):not(.disabled) {
+        transform: scale(0.4) translateY(-3px) !important;
+      }
+    }
+  }
+  
+  .trick-cards .card {
+    transform: scale(0.6) !important; // Decreased from 0.7
+    
+    .card-fallback {
+      .card-value { font-size: 1.1rem !important; }
+      .card-suit { font-size: 0.7rem !important; }
+    }
+  }
+  
+  .card::after,
+  .card::before {
+    font-size: 8px !important;
+  }
+}
+
+// ================================
+// TOUCH DEVICE OPTIMIZATIONS
+// ================================
+
+@media (hover: none) and (pointer: coarse) {
+  .card {
+    &:hover:not(:disabled):not(.disabled) {
+      transform: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    &:active {
+      transform: scale(0.98);
+      transition: transform 0.1s;
+    }
+    
+    &.playable:active {
+      transform: scale(0.96);
+      border-color: #45a049;
+    }
+    
+    &.selected:active {
+      transform: translateY(-8px) scale(1.06);
+    }
+  }
+  
+  .opponent-cards,
+  .teammate-cards {
+    app-card,
+    .card {
+      &:hover {
+        transform: scale(0.5) !important; // Match the base scale instead of removing hover
+      }
+      
+      &.card-back:hover,
+      &.trump:hover {
+        transform: scale(0.5) !important;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .opponent-cards,
+    .teammate-cards {
+      app-card,
+      .card {
+        &:hover { 
+          transform: scale(0.4) !important; // Match the base scale
+        }
+        
+        &.card-back:hover,
+        &.trump:hover {
+          transform: scale(0.4) !important;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .opponent-cards,
+    .teammate-cards {
+      app-card,
+      .card {
+        &:hover { 
+          transform: scale(0.35) !important; // Match the base scale
+        }
+        
+        &.card-back:hover,
+        &.trump:hover {
+          transform: scale(0.35) !important;
+        }
+      }
+    }
+  }
+}
+
+// ================================
+// UTILITY CLASSES
+// ================================
 
 .hidden-img {
   position: absolute;
   opacity: 0;
   pointer-events: none;
-}
-
-@media (max-width: 768px) {
-  .card {
-    width: 60px;
-    height: 84px;
-  }
-  
-  .card-fallback .card-value {
-    font-size: 1.1rem;
-  }
-  
-  .card-fallback .card-suit {
-    font-size: 0.7rem;
-  }
+  width: 1px;
+  height: 1px;
 }

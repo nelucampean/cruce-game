@@ -1,27 +1,337 @@
+// Enhanced mobile-friendly player-hand.component.scss
+
 .player-hand {
   display: flex;
   gap: 0.5rem;
   justify-content: center;
-  flex-wrap: wrap;
-  padding: 1rem;
+  flex-wrap: nowrap;
+  padding: 1rem 0.5rem;
   min-height: 120px;
+  position: relative;
+  overflow-x: auto;
+  overflow-y: visible;
+  
+  // Enable horizontal scrolling on mobile if needed
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  
+  &::-webkit-scrollbar {
+    display: none; /* WebKit */
+  }
 }
 
 .hand-card {
-  transition: all 0.3s ease;
-
+  flex-shrink: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  
+  // Default state
+  transform-origin: bottom center;
+  
   &:hover {
-    z-index: 10;
+    z-index: 20;
+    transform: translateY(-15px) scale(1.05);
+  }
+  
+  &.selected {
+    z-index: 30;
+    transform: translateY(-20px) scale(1.1);
+  }
+  
+  &.playable {
+    cursor: pointer;
+    
+    // Subtle bounce animation to indicate playability
+    &::after {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 6px;
+      background: #4CAF50;
+      border-radius: 50%;
+      animation: playableBounce 2s infinite;
+    }
+  }
+  
+  &.marriage-eligible {
+    // Add marriage indicator
+    &::before {
+      content: '👑';
+      position: absolute;
+      top: -10px;
+      right: -5px;
+      font-size: 14px;
+      z-index: 5;
+      background: rgba(212, 175, 55, 0.9);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: marriagePulse 1.5s infinite;
+    }
+  }
+  
+  &.trump-card {
+    // Special highlighting for trump cards
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+    border-color: #d4af37;
+  }
+  
+  // Stacking order for overlapped layout
+  &:nth-child(1) { z-index: 13; }
+  &:nth-child(2) { z-index: 12; }
+  &:nth-child(3) { z-index: 11; }
+  &:nth-child(4) { z-index: 10; }
+  &:nth-child(5) { z-index: 9; }
+  &:nth-child(6) { z-index: 8; }
+  &:nth-child(7) { z-index: 7; }
+  &:nth-child(8) { z-index: 6; }
+  &:nth-child(9) { z-index: 5; }
+  &:nth-child(10) { z-index: 4; }
+  &:nth-child(11) { z-index: 3; }
+  &:nth-child(12) { z-index: 2; }
+  &:nth-child(13) { z-index: 1; }
+}
+
+// Animations
+@keyframes playableBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0) translateX(-50%);
+  }
+  40% {
+    transform: translateY(-5px) translateX(-50%);
+  }
+  60% {
+    transform: translateY(-3px) translateX(-50%);
   }
 }
 
+@keyframes marriagePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+// Mobile tablet adjustments
 @media (max-width: 768px) {
   .player-hand {
     gap: 0.25rem;
-    padding: 0.5rem;
+    padding: 0.75rem 0.25rem;
+    min-height: 100px;
+    
+    // Allow slight overlap to fit more cards
+    margin: 0 -10px;
   }
 
   .hand-card {
-    margin: 0 -5px; // Slight overlap on mobile
+    margin: 0 -3px; // Slight overlap
+    
+    &:hover {
+      transform: translateY(-12px) scale(1.04);
+    }
+    
+    &.selected {
+      transform: translateY(-16px) scale(1.08);
+    }
+    
+    &.playable::after {
+      width: 4px;
+      height: 4px;
+    }
+    
+    &.marriage-eligible::before {
+      font-size: 12px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+// Mobile phone adjustments
+@media (max-width: 480px) {
+  .player-hand {
+    gap: 0.1rem;
+    padding: 0.5rem 0.1rem;
+    min-height: 80px;
+    margin: 0 -15px; // More negative margin to utilize screen width
+  }
+
+  .hand-card {
+    margin: 0 -5px; // More overlap
+    
+    &:hover {
+      transform: translateY(-10px) scale(1.03);
+    }
+    
+    &.selected {
+      transform: translateY(-14px) scale(1.06);
+    }
+    
+    &.playable::after {
+      display: none; // Remove bounce indicator on very small screens
+    }
+    
+    &.marriage-eligible::before {
+      font-size: 10px;
+      width: 14px;
+      height: 14px;
+      top: -8px;
+      right: -3px;
+    }
+  }
+}
+
+// Very small screens - maximize card visibility
+@media (max-width: 360px) {
+  .player-hand {
+    padding: 0.25rem 0;
+    margin: 0 -20px;
+    
+    // Enable horizontal scrolling if absolutely necessary
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    
+    // Snap scrolling
+    scroll-snap-type: x mandatory;
+  }
+  
+  .hand-card {
+    margin: 0 -8px;
+    scroll-snap-align: start;
+    
+    &:first-child {
+      margin-left: 20px; // Padding for first card
+    }
+    
+    &:last-child {
+      margin-right: 20px; // Padding for last card
+    }
+  }
+}
+
+// Landscape orientation optimizations
+@media (max-width: 768px) and (orientation: landscape) {
+  .player-hand {
+    padding: 0.5rem 0.25rem;
+    min-height: 90px;
+  }
+  
+  .hand-card {
+    &:hover {
+      transform: translateY(-10px) scale(1.03);
+    }
+    
+    &.selected {
+      transform: translateY(-14px) scale(1.06);
+    }
+  }
+}
+
+// Touch device optimizations
+@media (hover: none) and (pointer: coarse) {
+  .hand-card {
+    // Remove hover states, rely on selection
+    &:hover {
+      transform: none;
+    }
+    
+    // Enhanced tap states
+    &:active {
+      transform: translateY(-8px) scale(1.02);
+      transition: transform 0.15s ease-out;
+    }
+    
+    &.selected:active {
+      transform: translateY(-18px) scale(1.08);
+    }
+    
+    // Larger touch targets
+    &::after {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      z-index: -1;
+    }
+  }
+  
+  // Remove marriage animation on touch devices to reduce distraction
+  .hand-card.marriage-eligible::before {
+    animation: none;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .hand-card.playable::after {
+    background: #000;
+    border: 2px solid #fff;
+  }
+  
+  .hand-card.marriage-eligible::before {
+    background: #000;
+    border: 2px solid #fff;
+    color: #fff;
+  }
+}
+
+// Reduced motion preferences
+@media (prefers-reduced-motion: reduce) {
+  .hand-card {
+    transition: transform 0.1s ease;
+    
+    &:hover,
+    &.selected,
+    &:active {
+      transition: none;
+    }
+  }
+  
+  .hand-card.playable::after {
+    animation: none;
+  }
+  
+  .hand-card.marriage-eligible::before {
+    animation: none;
+  }
+}
+
+// Focus management for keyboard navigation
+.hand-card:focus-within {
+  outline: 3px solid #2196F3;
+  outline-offset: 2px;
+  z-index: 25;
+}
+
+// Selection indicators for screen readers
+.hand-card[aria-pressed="true"] {
+  border-color: #2196F3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
+}
+
+// Smooth scrolling for touch devices
+@supports (scroll-behavior: smooth) {
+  .player-hand {
+    scroll-behavior: smooth;
+  }
+}
+
+// Safari-specific fixes
+@supports (-webkit-touch-callout: none) {
+  .hand-card {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
   }
 }
