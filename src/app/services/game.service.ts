@@ -1,9 +1,14 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, signal, computed } from '@angular/core';
+import { BehaviorSubject, Subject, Observable} from 'rxjs';
 import { Card, GamePhase, GameState, Player, Suit } from '../models/card.model';
 import { DeckService } from './deck.service';
 import { PlayerService } from './player.service';
 import { CruceRulesService } from './cruce-rules.service'; // ADD THIS IMPORT
+
+export interface TrickResult {
+  winnerPlayerID: number;
+  cards: any[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +29,10 @@ export class GameService {
   });
 
   gameState$ = this.gameState.asObservable();
+  private trickCompletedSubject = new Subject<TrickResult>();
+  
+  // Public observables
+  trickCompleted$ = this.trickCompletedSubject.asObservable();
 
   constructor(
     private deckService: DeckService,
@@ -34,6 +43,11 @@ export class GameService {
   public testDeck: Card[] = [];
   private marriageAnnouncements: { player: number; suit: Suit; value: number }[] = [];
   private trickWinner = -1;
+
+  private _trickCompleted = signal<TrickResult | null>(null);
+  
+  // Public readonly signal for components to subscribe to
+  readonly trickCompleted = this._trickCompleted.asReadonly();
 
   startNewGame(targetScore: number = 15) {
     const deck = this.deckService.createDeck();
@@ -210,7 +224,8 @@ export class GameService {
 
     // Check if trick is complete (4 cards played)
     if (updatedTrick.length === 4) {
-      setTimeout(() => this.evaluateTrick(), 1500); // Show trick for a moment
+
+      setTimeout(() => this.evaluateTrick()); // Show trick for a moment
     } else {
       // Let bot play if it's their turn
       if (!state.players[nextPlayer].isHuman) {
@@ -260,31 +275,29 @@ export class GameService {
     return playerHand.some(c => c.suit === card.suit && c.value === partnerValue);
   }
 
+  
+
   private evaluateTrick() {
     const state = this.gameState.value;
     
     // Use the rules service for correct trick winner determination
     this.trickWinner = this.cruceRulesService.determineTrickWinnerPlayerIndex(state.currentTrick, state.trumpSuit);
     
-    // Add debug logging to see what's happening
-    const debugInfo = this.cruceRulesService.debugTrickEvaluation(state.currentTrick, state.trumpSuit);
-    console.log('Trick evaluation:');
-    console.log(debugInfo.explanation);
-    
-    console.log(`Trick won by ${state.players[this.trickWinner].name}`);
+      this.trickCompletedSubject.next({
+        winnerPlayerID:this.trickWinner,
+        cards: [...state.currentTrick]
+      });
+
+
     
     // Calculate points in this trick
     const trickPoints = state.currentTrick.reduce((sum, card) => sum + card.points, 0);
-    console.log(`Trick contains ${trickPoints} points`);
-    
-    // Award points to winner
     const updatedScores = [...state.scores];
     updatedScores[this.trickWinner] += trickPoints;
 
-    // Check if hand is finished (all 6 tricks played)
     const totalCardsPlayed = state.players[0].hand.length === 0;
-    
-    if (totalCardsPlayed) {
+    setTimeout(() => {
+         if (totalCardsPlayed) {
       this.finishHand(updatedScores);
     } else {
       // Continue with next trick
@@ -294,12 +307,12 @@ export class GameService {
         scores: updatedScores,
         currentPlayer: this.trickWinner
       });
-
-      // Let bot play if it's their turn
       if (!state.players[this.trickWinner].isHuman) {
         setTimeout(() => this.processBotPlay(), 1000);
       }
     }
+    }, 3000);
+ 
   }
 
   private finishHand(scores: number[]) {

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { GameService } from '../../services/game.service';
+import { GameService , TrickResult} from '../../services/game.service';
 import { PlayerService } from '../../services/player.service';
 import { CruceRulesService } from '../../services/cruce-rules.service';
 import { DeckService } from '../../services/deck.service';
@@ -26,7 +26,7 @@ import { MarriageDialogComponent } from '../../marriage-dialog/marriage-dialog.c
 })
 export class GameBoardComponent implements OnInit, OnDestroy {
   gameState!: GameState;
-  private subscription!: Subscription;
+  private subscription = new Subscription();
   
   // UI state
   selectedCard: Card | null = null;
@@ -46,10 +46,20 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.subscription = this.gameService.gameState$.subscribe(state => {
-      this.gameState = state;
-      this.updateGameState();
-    });
+       this.subscription.add(
+      this.gameService.gameState$.subscribe((state: GameState) => {
+        this.gameState = state;
+        this.updateGameState();
+      })
+    );
+
+    // Subscribe to trick completion events
+    this.subscription.add(
+      this.gameService.trickCompleted$.subscribe((trickResult: TrickResult) => {
+        console.log("trick result  pid "+trickResult.winnerPlayerID);
+        this.handleTrickCompletion(trickResult);
+      })
+    );
 
     this.gameService.startNewGame(15); // Play to 15 points
   }
@@ -70,6 +80,61 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     // Add game messages for important events
     this.updateGameMessages();
   }
+
+
+// Add this property to track animation state
+  trickAnimationState: 'none' | 'complete' | 'swipe-up' | 'swipe-down' | 'swipe-left' | 'swipe-right' = 'none';
+  
+  // Add property to track trick winner
+  trickWinnerID: number | null = null;
+
+ // Add detailed logging to debug the animation issue
+private handleTrickCompletion(trickResult: TrickResult) {
+  
+  this.trickWinnerID = trickResult.winnerPlayerID;
+  const shouldShowComplete = this.gameState?.currentTrick.length === 4 && this.trickWinnerID === null;
+  setTimeout(() => {
+    const swipeDirection = this.getSwipeDirection(trickResult.winnerPlayerID);
+    this.trickAnimationState = swipeDirection;
+  }, 1000);
+ 
+  setTimeout(() => {
+    this.resetTrickAnimation();
+  }, 3010);
+}
+
+// Add logging to the swipe direction method
+private getSwipeDirection(playerID: number): 'swipe-up' | 'swipe-down' | 'swipe-left' | 'swipe-right' {
+  let direction: 'swipe-up' | 'swipe-down' | 'swipe-left' | 'swipe-right';  
+  switch (playerID) {
+    case 0: 
+      direction = 'swipe-down';  // Bottom player
+      break;
+    case 1: 
+      direction = 'swipe-left';  // Left player
+      break;
+    case 2: 
+      direction = 'swipe-up';    // Top player
+      break;
+    case 3: 
+      direction = 'swipe-right'; // Right player
+      break;
+    default: 
+      direction = 'swipe-up';    // Fallback
+      break;
+  }  
+  return direction;
+}
+
+// Add logging to reset method
+private resetTrickAnimation() {
+ 
+  this.trickAnimationState = 'none';
+  this.trickWinnerID = null;
+
+
+}
+
 
   private updatePlaySuggestion() {
     if (this.isHumanPlayerTurn() && this.gameState.phase === GamePhase.PLAYING) {
@@ -163,6 +228,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   }
 
   playCard(card: Card, announceMarriage: boolean) {
+
     this.gameService.playCard(card, announceMarriage);
     this.selectedCard = null;
     this.showMarriageDialog = false;
@@ -298,6 +364,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   }
 
   getCardBacks(count: number): any[] {
+    
     return Array(count).fill(0);
   }
 

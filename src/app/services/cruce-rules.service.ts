@@ -59,7 +59,7 @@ export class CruceRulesService {
   // The caller must adjust this based on who led the trick
   determineTrickWinner(trick: Card[], trumpSuit: Suit | null): number {
     if (trick.length !== 4) {
-      throw new Error('Trick must have exactly 4 cards');
+   //   throw new Error('Trick must have exactly 4 cards');
     }
 
     const leadSuit = trick[0].suit;

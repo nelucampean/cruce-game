@@ -106,35 +106,38 @@
       </div>
     </div>
 
-    <!-- Current trick area -->
-    <div class="trick-area">
-      <div class="trick-label" *ngIf="gameState.currentTrick.length > 0">
-        Trick {{ getTrickNumber() }}
-      </div>
-      
-      <div class="trick-cards" 
-           [class.complete]="gameState.currentTrick.length === 4">
-        <app-card *ngFor="let card of gameState.currentTrick; trackBy: trackByIndex"
-                  [card]="card"
-                  [isTrump]="card.suit === gameState.trumpSuit"
-                  size="medium"
-                  [class]="'card-position-' + card.playerID"
-                  [disabled]="true"
-                  [inTrick]="true"
-                  >
-                  
-        </app-card>
-        
-        <!-- Placeholder cards for incomplete trick -->
-        <div class="card-placeholder" 
-             *ngFor="let placeholder of getCardBacks(4 - gameState.currentTrick.length); trackBy: trackByIndex">
-        </div>
-      </div>
-      
-      <div class="trick-description" *ngIf="gameState.currentTrick.length > 0">
-        {{ getCurrentTrickDescription() }}
-      </div>
+<!-- Current trick area -->
+<div class="trick-area" *ngIf="gameState">
+  <div class="trick-label" *ngIf="gameState.currentTrick.length > 0">
+    Trick {{ getTrickNumber() }}
+  </div>
+  
+  <div class="trick-cards" 
+       [class.complete]="gameState.currentTrick.length === 4 && trickWinnerID === null"
+       [class.swipe-up]="trickAnimationState === 'swipe-up'"
+       [class.swipe-down]="trickAnimationState === 'swipe-down'"
+       [class.swipe-left]="trickAnimationState === 'swipe-left'"
+       [class.swipe-right]="trickAnimationState === 'swipe-right'">
+       
+    <app-card *ngFor="let card of gameState.currentTrick; trackBy: trackByIndex"
+              [card]="card"
+              [isTrump]="card.suit === gameState.trumpSuit"
+              size="medium"
+              [class]="'card-position-' + card.playerID"
+              [disabled]="true"
+              [inTrick]="true">
+    </app-card>
+    
+    <!-- Placeholder cards for incomplete trick -->
+    <div class="card-placeholder" 
+         *ngFor="let placeholder of getCardBacks(4 - gameState.currentTrick.length); trackBy: trackByIndex">
     </div>
+  </div>
+  
+  <div class="trick-description" *ngIf="gameState.currentTrick.length > 0">
+    {{ getCurrentTrickDescription() }}
+  </div>
+</div>
 
     <!-- Bidding panel -->
     <app-bidding-panel 

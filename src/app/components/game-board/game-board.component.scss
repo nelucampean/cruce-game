@@ -206,9 +206,9 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    gap: var(--spacing-sm); // Increased gap
-    min-width: 180px; // Increased from 140px
-    min-height: 140px; // Increased from 110px
+    gap: var(--spacing-sm);
+    min-width: 180px;
+    min-height: 140px;
     position: relative;
     place-items: center;
 
@@ -218,30 +218,86 @@
     .card-position-4 { grid-column: 2; grid-row: 3; } // Bottom
     .card-position-3 { grid-column: 3; grid-row: 2; } // Right
 
-        // Cross formation positioning
+    // Cross formation positioning for placeholders
     .card-placeholder:nth-child(1) { grid-column: 2; grid-row: 1; } // Top
     .card-placeholder:nth-child(2) { grid-column: 1; grid-row: 2; } // Left
     .card-placeholder:nth-child(3) { grid-column: 2; grid-row: 3; } // Bottom
     .card-placeholder:nth-child(4) { grid-column: 3; grid-row: 2; } // Right
 
-
     app-card {
-      transform: scale(0.9); // Increased from 0.8
+      transform: scale(0.9);
       transition: transform 0.2s ease;
     }
 
-
-
+    // Base complete animation (pulse only)
     &.complete {
       animation: pulseComplete 0.8s ease-in-out;
       
       app-card {
-        transform: scale(0.95); // Increased from 0.85
+        transform: scale(0.95);
+        border-color: var(--color-success);
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+      }
+    }
+
+    // Swipe animations (pulse + directional swipe)
+    &.swipe-up {
+      animation: 
+        pulseComplete 0.8s ease-in-out,
+        swipeUp 0.6s ease-in 0.8s forwards;
+      
+      app-card {
+        animation: 
+          pulseComplete 0.8s ease-in-out,
+          swipeUp 0.6s ease-in 0.8s forwards;
+        border-color: var(--color-success);
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+      }
+    }
+
+    &.swipe-down {
+      animation: 
+        pulseComplete 0.8s ease-in-out,
+        swipeDown 0.6s ease-in 0.8s forwards;
+      
+      app-card {
+        animation: 
+          pulseComplete 0.8s ease-in-out,
+          swipeDown 0.6s ease-in 0.8s forwards;
+        border-color: var(--color-success);
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+      }
+    }
+
+    &.swipe-left {
+      animation: 
+        pulseComplete 0.8s ease-in-out,
+        swipeLeft 0.6s ease-in 0.8s forwards;
+      
+      app-card {
+        animation: 
+          pulseComplete 0.8s ease-in-out,
+          swipeLeft 0.6s ease-in 0.8s forwards;
+        border-color: var(--color-success);
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+      }
+    }
+
+    &.swipe-right {
+      animation: 
+        pulseComplete 0.8s ease-in-out,
+        swipeRight 0.6s ease-in 0.8s forwards;
+      
+      app-card {
+        animation: 
+          pulseComplete 0.8s ease-in-out,
+          swipeRight 0.6s ease-in 0.8s forwards;
         border-color: var(--color-success);
         box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
       }
     }
   }
+
 
   .card-placeholder {
     width: 80px; // Increased from 48px
@@ -715,6 +771,81 @@ app-bidding-panel {
     transform: scale(0.85);
     opacity: 0.8;
   }
+}
+
+
+/* Swipe out animations in four directions */
+@keyframes swipeUp {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-500px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+@keyframes swipeDown {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(500px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+@keyframes swipeLeft {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(-500px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+@keyframes swipeRight {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(500px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* Animation classes to apply */
+.pulse-complete {
+  animation: pulseComplete 0.8s ease-in-out;
+}
+
+.swipe-up {
+  animation: 
+    pulseComplete 0.8s ease-in-out,
+    swipeUp 0.6s ease-in 0.8s forwards;
+}
+
+.swipe-down {
+  animation: 
+    pulseComplete 0.8s ease-in-out,
+    swipeDown 0.6s ease-in 0.8s forwards;
+}
+
+.swipe-left {
+  animation: 
+    pulseComplete 0.8s ease-in-out,
+    swipeLeft 0.6s ease-in 0.8s forwards;
+}
+
+.swipe-right {
+  animation: 
+    pulseComplete 0.8s ease-in-out,
+    swipeRight 0.6s ease-in 0.8s forwards;
 }
 
 // ================================
