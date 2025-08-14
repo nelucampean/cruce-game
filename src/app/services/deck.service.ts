@@ -29,7 +29,8 @@ export class DeckService {
           displayValue: cardInfo.display,
           points: cardInfo.points,
           id: `${suit}-${cardInfo.value}`,
-          imageUrl: this.getCardImageUrl(cardInfo.imageValue, suit)
+          imageUrl: this.getCardImageUrl(cardInfo.imageValue, suit),
+          playerID: -1
         });
       });
     });
@@ -65,6 +66,7 @@ export class DeckService {
     for (let i = 0; i < cardsPerPlayer; i++) {
       for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
         if (cardIndex < deck.length) {
+          deck[cardIndex].playerID=playerIndex
           players[playerIndex].hand.push(deck[cardIndex]);
           cardIndex++;
         }

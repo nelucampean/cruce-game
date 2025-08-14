@@ -118,6 +118,7 @@
                   [card]="card"
                   [isTrump]="card.suit === gameState.trumpSuit"
                   size="medium"
+                  [class]="'card-position-' + card.playerID"
                   [disabled]="true">
         </app-card>
         

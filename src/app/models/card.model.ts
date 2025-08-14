@@ -12,6 +12,7 @@ export interface Card {
   displayValue: string; // Romanian names: Doiar, Treiar, Pătrar, Nouăr, Zecar, As
   points: number;       // Points for scoring: 2, 3, 4, 0, 10, 11
   imageUrl: string;
+  playerID: number;
 }
 
 export interface Player {

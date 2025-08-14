@@ -308,7 +308,8 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       displayValue: 'Doiar',
       points: 2,
       id: 'dummy',
-      imageUrl: this.deckService.getCardBackUrl()
+      imageUrl: this.deckService.getCardBackUrl(),
+      playerID: -1
     };
   }
 

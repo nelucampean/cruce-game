@@ -39,6 +39,7 @@ export class PlayerHandComponent {
     }
 
     if (this.isCardPlayable(card)) {
+      card.playerID = 4 //todo make it players.lenght
       this.cardSelected.emit(card);
       this.cardPlayed.emit(card);
     }

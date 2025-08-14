@@ -78,6 +78,8 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+
+  
   
   // Interaction
   user-select: none;
@@ -93,21 +95,27 @@
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
     z-index: 10;
   }
+
+
 }
 
 // ================================
 // CARD STATES
 // ================================
 
+
 .card.playable {
   @include card-state(var(--color-success), rgb(76, 175, 80));
-  transform: scale(1.1);
+  transform: scale(1.15);
+  filter: none !important; 
+  opacity: 1 !important;
   &:hover {
     @include card-hover(1.05, -8px);
     border-color: #45a049;
     box-shadow: 0 8px 16px rgba(76, 175, 80, 0.4);
     transform: translateY(-8px) scale(1.05);
   }
+
 }
 
 .card.selected {
@@ -175,9 +183,9 @@
 // ================================
 
 .card.disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  opacity: 0.9;
   filter: grayscale(30%);
+  cursor: not-allowed;
   &:hover {
     transform: none;
     box-shadow: none;
@@ -235,6 +243,7 @@
   .card-back-content .back-pattern { font-size: 2.5rem !important; }
   &::after, &::before { font-size: 16px !important; }
 }
+  
 
 // ================================
 // FALLBACK CONTENT - ALWAYS VISIBLE
@@ -378,7 +387,7 @@
 // ================================
 // RESPONSIVE DESIGN - UPDATED
 // ================================
-/*
+
 @media (max-width: 768px) {
   :root {
     --card-hover-lift: -4px;
@@ -507,7 +516,7 @@
     font-size: 8px !important;
   }
 }
-*/
+
 // ================================
 // TOUCH DEVICE OPTIMIZATIONS
 // ================================

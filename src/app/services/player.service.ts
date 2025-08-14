@@ -90,7 +90,7 @@ export class PlayerService {
         allPlayers
       );
     }
-
+    selectedCard.playerID = playerIndex
     console.log(`Bot ${playerIndex} plays: ${selectedCard.displayValue} of ${selectedCard.suit}${announceMarriage ? ' (announces marriage)' : ''}`);
     
     return { card: selectedCard, announceMarriage };
