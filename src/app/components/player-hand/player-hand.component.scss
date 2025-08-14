@@ -82,6 +82,8 @@
     border-color: #d4af37;
   }
   
+  
+  
   // Stacking order for overlapped layout
   &:nth-child(1) { z-index: 13; }
   &:nth-child(2) { z-index: 12; }

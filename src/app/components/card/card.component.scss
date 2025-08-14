@@ -101,7 +101,7 @@
 
 .card.playable {
   @include card-state(var(--color-success), rgb(76, 175, 80));
-  
+  transform: scale(1.1);
   &:hover {
     @include card-hover(1.05, -8px);
     border-color: #45a049;
@@ -378,7 +378,7 @@
 // ================================
 // RESPONSIVE DESIGN - UPDATED
 // ================================
-
+/*
 @media (max-width: 768px) {
   :root {
     --card-hover-lift: -4px;
@@ -437,7 +437,7 @@
   
   // Better mobile scaling for trick cards
   .trick-cards .card {
-    transform: scale(0.7) !important; // Decreased from 0.8
+    transform: scale(1.1) !important; // Decreased from 0.8
     
     .card-fallback {
       .card-value { font-size: 1.3rem !important; }
@@ -494,7 +494,7 @@
   }
   
   .trick-cards .card {
-    transform: scale(0.6) !important; // Decreased from 0.7
+    transform: scale(1.2) !important; // Decreased from 0.7
     
     .card-fallback {
       .card-value { font-size: 1.1rem !important; }
@@ -507,7 +507,7 @@
     font-size: 8px !important;
   }
 }
-
+*/
 // ================================
 // TOUCH DEVICE OPTIMIZATIONS
 // ================================

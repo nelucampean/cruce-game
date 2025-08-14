@@ -218,6 +218,12 @@
     app-card:nth-child(3) { grid-column: 2; grid-row: 3; } // Bottom
     app-card:nth-child(4) { grid-column: 3; grid-row: 2; } // Right
 
+        // Cross formation positioning
+    .card-placeholder:nth-child(1) { grid-column: 2; grid-row: 1; } // Top
+    .card-placeholder:nth-child(2) { grid-column: 1; grid-row: 2; } // Left
+    .card-placeholder:nth-child(3) { grid-column: 2; grid-row: 3; } // Bottom
+    .card-placeholder:nth-child(4) { grid-column: 3; grid-row: 2; } // Right
+
     app-card {
       transform: scale(0.9); // Increased from 0.8
       transition: transform 0.2s ease;
@@ -235,8 +241,8 @@
   }
 
   .card-placeholder {
-    width: 60px; // Increased from 48px
-    height: 84px; // Increased from 67px
+    width: 80px; // Increased from 48px
+    height: 125px; // Increased from 67px
     border: 1px dashed rgba(255, 255, 255, 0.3);
     border-radius: var(--border-radius-md);
     background: rgba(255, 255, 255, 0.1);
@@ -739,11 +745,11 @@ app-bidding-panel {
     gap: var(--spacing-xs);
     
    .trick-cards {
-      min-width: 150px; // Increased from 120px
-      min-height: 120px; // Increased from 95px
+   //   min-width: 150px; // Increased from 120px
+   //   min-height: 120px; // Increased from 95px
       gap: 0.3rem; // Slightly larger gap
        app-card { 
-        transform: scale(0.8); // Increased from 0.7
+        transform: scale(1.2); // Increased from 0.7
       }
       &.complete app-card { 
         transform: scale(0.85); // Increased from 0.75
@@ -810,14 +816,17 @@ app-bidding-panel {
   }
 
   .trick-area .trick-cards {
-    min-width: 130px; // Increased from 100px
-    min-height: 100px; // Increased from 80px
+//    min-width: 130px; // Increased from 100px
+  //  min-height: 100px; // Increased from 80px
     
     app-card { 
-      transform: scale(0.35); // Increased from 0.6
+      transform: scale(1.3); // Increased from 0.6
     }
   }
-
+    
+ app-card { 
+      transform: scale(1.35); // Increased from 0.6
+    }
   .opponent-cards,
   .teammate-cards {
     app-card {
