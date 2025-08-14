@@ -56,49 +56,90 @@
 // ================================
 
 .card {
-  // Base dimensions - use fixed values to ensure visibility
   width: 80px;
   height: 125px;
-  min-width: 80px;
-  min-height: 125px;
-  
-  // Layout properties
-  position: relative;
-  display: block;
-  padding: 0;
   border: 2px solid #ddd;
   border-radius: 8px;
-  background: white;
   cursor: pointer;
-  overflow: visible; // Changed from hidden to visible
-  box-sizing: border-box;
-  flex-shrink: 0;
+  transition: all 0.2s ease;
+  position: relative;
+  padding: 0;
+  background: white;
+  overflow: hidden;
   
-  // Visual properties
+  // Background image properties
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-
   
-  
-  // Interaction
-  user-select: none;
-  -webkit-user-select: none;
-  transition: all 0.3s ease;
-  
-  // Remove 3D properties that might cause issues
-  transform-style: flat;
-  
-  // Base hover state
   &:hover:not(:disabled):not(.disabled) {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-    z-index: 10;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  &.playable {
+    border-color: #4CAF50;
+    
+    &:hover:not(:disabled):not(.disabled) {
+      border-color: #45a049;
+    }
+  }
+  
+  &.selected {
+    border-color: #2196F3;
+    transform: translateY(-10px);
+    box-shadow: 0 5px 20px rgba(33, 150, 243, 0.5);
+  }
+  
+  // Enhanced disabled state - use higher specificity and !important
+  &:disabled,
+  &.disabled {
+    opacity: 0.4;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    filter: grayscale(60%) !important;
+    border-color: #999 !important;
+    
+    &:hover {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+
+  }
+  
+  // When image is loaded, hide fallback content
+  &.image-loaded {
+    .card-fallback,
+    .card-back-content {
+      display: none;
+    }
+  }
+  
+  // Card back styling
+  &.card-back {
+    background-color: #8B4513;
+    opacity: 100%;
+    &:not(.image-loaded) {
+      background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+    }
+    &:hover{
+      transform: none;
+    }
   }
 
 
 }
 
+:host {
+  &.in-trick {
+    filter: none !important;
+    
+    * {
+      filter: none !important;
+    }
+  }
+}
 // ================================
 // CARD STATES
 // ================================

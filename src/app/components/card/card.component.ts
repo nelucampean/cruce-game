@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Card, Suit } from '../../models/card.model';
 import { DeckService } from '../../services/deck.service';
@@ -22,11 +22,16 @@ export class CardComponent {
   @Input() size: 'small' | 'medium' | 'large' = 'medium';
   @Input() showTooltip = true;
   @Input() disabled = false;
+  @Input() inTrick = false;
   @Input() isWinner = false;
   @Input() animationClass = '';
   
   @Output() cardClicked = new EventEmitter<Card>();
   @Output() cardHover = new EventEmitter<{ card: Card; hover: boolean }>();
+
+  @HostBinding('class.in-trick') get inTrickClass() {
+    return this.inTrick;
+  }
 
   imageLoaded = false;
   imageError = false;

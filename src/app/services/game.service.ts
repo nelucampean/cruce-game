@@ -180,6 +180,7 @@ export class GameService {
       console.log(`Trump suit set to: ${trumpSuit}`);
     }
 
+    
     // Remove card from player's hand
     const updatedPlayers = [...state.players];
     const currentPlayerHand = updatedPlayers[state.currentPlayer].hand;

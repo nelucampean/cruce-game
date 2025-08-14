@@ -119,7 +119,10 @@
                   [isTrump]="card.suit === gameState.trumpSuit"
                   size="medium"
                   [class]="'card-position-' + card.playerID"
-                  [disabled]="true">
+                  [disabled]="true"
+                  [inTrick]="true"
+                  >
+                  
         </app-card>
         
         <!-- Placeholder cards for incomplete trick -->

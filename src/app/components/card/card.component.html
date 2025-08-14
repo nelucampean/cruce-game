@@ -1,39 +1,33 @@
 <button 
-  type="button"
-  [class]="getCardClasses()"
-  [disabled]="disabled || showBack"
-  [attr.aria-label]="getAriaLabel()"
+  class="card"
+  [class.playable]="isPlayable && !showBack && !disabled"
+  [class.selected]="isSelected"
+  [class.card-back]="showBack"
+  [class.image-loaded]="imageLoaded"
+  [class.disabled]="disabled || (!isPlayable && !showBack)"
+  [disabled]="disabled || !isPlayable || showBack"
+  [attr.aria-label]="getCardDescription()"
   [attr.aria-pressed]="isSelected"
-  [attr.tabindex]="getTabIndex()"
   [style.background-image]="getBackgroundImageStyle()"
   (click)="onClick($event)"
-  (keydown)="onKeyDown($event)"
-  (mouseenter)="onMouseEnter()"
-  (mouseleave)="onMouseLeave()"
-  (focus)="onMouseEnter()"
-  (blur)="onMouseLeave()">
+  (keydown.enter)="onClick($event)"
+  (keydown.space)="onClick($event)">
   
-  <!-- Hidden img for preloading and error detection -->
+  <!-- Hidden img element to detect loading errors -->
   <img 
     [src]="getImageUrl()"
-    [alt]="getCardDescription()"
     (load)="onImageLoad()"
     (error)="onImageError($event)"
     class="hidden-img"
-    loading="lazy">
+    style="display: none;">
   
-  <!-- Fallback content for card face -->
-  <div class="card-fallback" *ngIf="shouldShowCardContent()">
-    <div class="card-value" [style.color]="getSuitColor()">
-      {{ getCardValueDisplay() }}
-    </div>
-    <div class="card-suit" [style.color]="getSuitColor()">
-      {{ getSuitSymbol() }}
-    </div>
-  </div>
+  <!-- Fallback content when image fails to load or is loading -->
+  <div class="card-fallback" *ngIf="!showBack && (!imageLoaded || imageError)">
+    <div class="card-value">{{ card.displayValue }}</div>
+<div class="card-suit">{{ getSuitDisplayName() }}</div>  </div>
   
-  <!-- Back card content -->
-  <div class="card-back-content" *ngIf="shouldShowBackContent()">
+  <!-- Back card indicator -->
+  <div class="card-back-content" *ngIf="showBack && (!imageLoaded || imageError)">
     <div class="back-pattern">?</div>
   </div>
 </button>

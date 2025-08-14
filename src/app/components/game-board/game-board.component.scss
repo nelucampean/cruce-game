@@ -224,10 +224,13 @@
     .card-placeholder:nth-child(3) { grid-column: 2; grid-row: 3; } // Bottom
     .card-placeholder:nth-child(4) { grid-column: 3; grid-row: 2; } // Right
 
+
     app-card {
       transform: scale(0.9); // Increased from 0.8
       transition: transform 0.2s ease;
     }
+
+
 
     &.complete {
       animation: pulseComplete 0.8s ease-in-out;
@@ -388,6 +391,7 @@
     &:hover {
       box-shadow: 0 0 12px rgba(33, 150, 243, 0.8) !important;
     }
+
   }
 }
 
@@ -412,7 +416,7 @@
   @extend %card-container-base;
 
   app-card {
-   // @include card-base-size;
+    @include card-base-size;
     position: relative;
     margin-left: -20px; // Reduced overlap from -24px for better visibility
     transform: scale(0.35); // Increased from 0.5 to 0.7
@@ -436,6 +440,7 @@
         z-index: 9 - $i;
       }
     }
+
   }
 }
   

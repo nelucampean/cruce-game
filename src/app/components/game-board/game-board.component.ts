@@ -402,10 +402,10 @@ getPlayerDisplayInfo(playerIndex: number): {
 getTrickPosition(cardIndex: number): { gridColumn: number; gridRow: number } {
   // Position cards in cross formation
   const positions = [
-    { gridColumn: 2, gridRow: 1 }, // Top (first player)
-    { gridColumn: 1, gridRow: 2 }, // Left (second player)
-    { gridColumn: 2, gridRow: 2 }, // Bottom (third player)
-    { gridColumn: 3, gridRow: 2 }  // Right (fourth player)
+    { gridColumn: 1, gridRow: 2 }, // Top (first player)
+    { gridColumn: 2, gridRow: 1 }, // Left (second player)
+    { gridColumn: 3, gridRow: 2 }, // Bottom (third player)
+    { gridColumn: 2, gridRow: 3 }  // Right (fourth player)
   ];
   
   return positions[cardIndex] || { gridColumn: 2, gridRow: 2 };
