@@ -1,0 +1,27 @@
+.card-container {
+  position: relative;
+  display: inline-block;
+}
+
+.display-canvas {
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.cache-info {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #666;
+}

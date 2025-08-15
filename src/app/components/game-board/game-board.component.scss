@@ -7,19 +7,19 @@
   --border-radius-md: 6px;
   --border-radius-lg: 8px;
   --border-radius-xl: 12px;
-  
+
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 0.75rem;
   --spacing-lg: 1rem;
-  
+
   --font-xs: 0.6rem;
   --font-sm: 0.7rem;
   --font-md: 0.8rem;
   --font-lg: 0.9rem;
   --font-xl: 1rem;
   --font-xxl: 1.2rem;
-  
+
   --z-background: 1;
   --z-players: 2;
   --z-cards: 3;
@@ -29,7 +29,7 @@
   --z-scoreboard: 20;
   --z-overlay: 100;
   --z-modal: 1000;
-  
+
   --color-accent: #ffeb3b;
   --color-current-player: #2196F3;
   --color-success: #4CAF50;
@@ -106,7 +106,7 @@
   .game-title {
     flex: 1;
     min-width: 0;
-    
+
     h1 {
       margin: 0;
       font-size: var(--font-xxl);
@@ -177,8 +177,8 @@
   z-index: var(--z-ui);
 
   .trump-icon {
-    width: 20px;
-    height: 24px;
+    width: 40px;
+    height: 48px;
     object-fit: contain;
   }
 }
@@ -232,7 +232,7 @@
     // Base complete animation (pulse only)
     &.complete {
       animation: pulseComplete 0.8s ease-in-out;
-      
+
       app-card {
         transform: scale(0.95);
         border-color: var(--color-success);
@@ -242,12 +242,12 @@
 
     // Swipe animations (pulse + directional swipe)
     &.swipe-up {
-      animation: 
+      animation:
         pulseComplete 0.8s ease-in-out,
         swipeUp 0.6s ease-in 0.8s forwards;
-      
+
       app-card {
-        animation: 
+        animation:
           pulseComplete 0.8s ease-in-out,
           swipeUp 0.6s ease-in 0.8s forwards;
         border-color: var(--color-success);
@@ -256,12 +256,12 @@
     }
 
     &.swipe-down {
-      animation: 
+      animation:
         pulseComplete 0.8s ease-in-out,
         swipeDown 0.6s ease-in 0.8s forwards;
-      
+
       app-card {
-        animation: 
+        animation:
           pulseComplete 0.8s ease-in-out,
           swipeDown 0.6s ease-in 0.8s forwards;
         border-color: var(--color-success);
@@ -270,12 +270,12 @@
     }
 
     &.swipe-left {
-      animation: 
+      animation:
         pulseComplete 0.8s ease-in-out,
         swipeLeft 0.6s ease-in 0.8s forwards;
-      
+
       app-card {
-        animation: 
+        animation:
           pulseComplete 0.8s ease-in-out,
           swipeLeft 0.6s ease-in 0.8s forwards;
         border-color: var(--color-success);
@@ -284,12 +284,12 @@
     }
 
     &.swipe-right {
-      animation: 
+      animation:
         pulseComplete 0.8s ease-in-out,
         swipeRight 0.6s ease-in 0.8s forwards;
-      
+
       app-card {
-        animation: 
+        animation:
           pulseComplete 0.8s ease-in-out,
           swipeRight 0.6s ease-in 0.8s forwards;
         border-color: var(--color-success);
@@ -499,16 +499,16 @@
 
   }
 }
-  
+
 .players-layout {
   display: flex;
   flex-direction: column;
   height: 100%;
-  
+
   .teammate {
     align-self: center;
   }
-  
+
   .opponents-row {
     display: flex;
     justify-content: space-between;
@@ -628,10 +628,10 @@ app-bidding-panel {
   .bidding-panel {
     min-width: 250px;
     padding: var(--spacing-lg);
-    
+
     .bid-options {
       gap: var(--spacing-xs);
-      
+
       .bid-button {
         padding: var(--spacing-sm);
         min-width: 40px;
@@ -752,22 +752,22 @@ app-bidding-panel {
 // ================================
 
 @keyframes currentPlayerPulse {
-  0%, 100% { 
+  0%, 100% {
     box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
     border-color: var(--color-current-player);
   }
-  50% { 
+  50% {
     box-shadow: 0 0 20px rgba(33, 150, 243, 0.8);
     border-color: #1976D2;
   }
 }
 
 @keyframes pulseComplete {
-  0%, 100% { 
+  0%, 100% {
     transform: scale(0.8);
     opacity: 1;
   }
-  50% { 
+  50% {
     transform: scale(0.85);
     opacity: 0.8;
   }
@@ -825,25 +825,25 @@ app-bidding-panel {
 }
 
 .swipe-up {
-  animation: 
+  animation:
     pulseComplete 0.8s ease-in-out,
     swipeUp 0.6s ease-in 0.8s forwards;
 }
 
 .swipe-down {
-  animation: 
+  animation:
     pulseComplete 0.8s ease-in-out,
     swipeDown 0.6s ease-in 0.8s forwards;
 }
 
 .swipe-left {
-  animation: 
+  animation:
     pulseComplete 0.8s ease-in-out,
     swipeLeft 0.6s ease-in 0.8s forwards;
 }
 
 .swipe-right {
-  animation: 
+  animation:
     pulseComplete 0.8s ease-in-out,
     swipeRight 0.6s ease-in 0.8s forwards;
 }
@@ -862,15 +862,15 @@ app-bidding-panel {
   .game-header {
     padding: 0.2rem 0.4rem;
     min-height: 45px;
-    
+
     .game-title {
       h1 { font-size: var(--font-xl); }
-      .game-status { 
+      .game-status {
         font-size: var(--font-xs);
         max-width: 120px;
       }
     }
-    
+
     .btn {
       padding: 0.2rem 0.4rem;
       font-size: var(--font-xs);
@@ -879,24 +879,22 @@ app-bidding-panel {
 
   .trick-area {
     gap: var(--spacing-xs);
-    
+
    .trick-cards {
    //   min-width: 150px; // Increased from 120px
    //   min-height: 120px; // Increased from 95px
       gap: 0.3rem; // Slightly larger gap
-       app-card { 
+       app-card {
         transform: scale(1.2); // Increased from 0.7
       }
-      &.complete app-card { 
-        transform: scale(0.85); // Increased from 0.75
+      &.complete app-card {
+        transform: scale(1.0); // Increased from 0.75
       }
     }
-    
+
     .card-placeholder {
-      width: 54px; // Increased from 42px
-      height: 75px; // Increased from 59px
-      transform: scale(0.8); // Increased from 0.7
-    }
+      transform: scale(1.2); // Increased from 0.7
+      }
   }
 
   .opponent-cards,
@@ -904,8 +902,8 @@ app-bidding-panel {
     app-card {
       transform: scale(0.4); // Increased from 0.4
       margin-left: -25px; // Adjusted from -32px
-      
-      &:hover { 
+
+      &:hover {
         transform: scale(0.65) translateY(-5px); // Increased from 0.45
       }
     }
@@ -919,10 +917,10 @@ app-bidding-panel {
   .trump-indicator {
     font-size: var(--font-xs);
     padding: 0.2rem 0.4rem;
-    
+
     .trump-icon {
-      width: 16px;
-      height: 20px;
+      width: 32px;
+      height: 40px;
     }
   }
 }
@@ -946,7 +944,7 @@ app-bidding-panel {
     transform: none;
     padding: 0.1rem;
   }
-  
+
   .teammate {
     padding: 0.1rem;
   }
@@ -954,13 +952,13 @@ app-bidding-panel {
   .trick-area .trick-cards {
 //    min-width: 130px; // Increased from 100px
   //  min-height: 100px; // Increased from 80px
-    
-    app-card { 
+
+    app-card {
       transform: scale(1.3); // Increased from 0.6
     }
   }
-    
- app-card { 
+
+ app-card {
       transform: scale(1.35); // Increased from 0.6
     }
   .opponent-cards,
@@ -968,8 +966,8 @@ app-bidding-panel {
     app-card {
       transform: scale(0.35); // Increased from 0.35
       margin-left: -30px; // Adjusted from -36px
-      
-      &:hover { 
+
+      &:hover {
         transform: scale(0.55) translateY(-3px); // Increased from 0.4
       }
     }
@@ -977,10 +975,10 @@ app-bidding-panel {
 
   .game-header {
     min-height: 40px;
-    
+
     .game-title {
       h1 { font-size: var(--font-lg); }
-      .game-status { 
+      .game-status {
         font-size: 0.5rem;
         max-width: 100px;
       }
@@ -998,14 +996,14 @@ app-bidding-panel {
       transform: scale(0.35); // Remove hover effects on touch devices
     }
   }
-  
+
   @media (max-width: 768px) {
     .opponent-cards,
     .teammate-cards {
       app-card:hover { transform: scale(0.4); }
     }
   }
-  
+
   @media (max-width: 480px) {
     .opponent-cards,
     .teammate-cards {

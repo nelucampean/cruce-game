@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { GameService , TrickResult} from '../../services/game.service';
@@ -9,25 +9,27 @@ import { Card, GamePhase, Player, Suit, GameState } from '../../models/card.mode
 import { PlayerHandComponent } from '../player-hand/player-hand.component';
 import { BiddingPanelComponent } from '../bidding-panel/bidding-panel.component';
 import { CardComponent } from '../card/card.component';
-import { MarriageDialogComponent } from '../../marriage-dialog/marriage-dialog.component';
+import { MarriageDialogComponent } from '../marriage-dialog/marriage-dialog.component';
+import {CachedCardBacksComponent} from "../canvas-card-backs/canvas-card-backs.component";
 
 @Component({
     standalone: true,
     selector: 'app-game-board',
-    imports: [
-        CommonModule,
-        PlayerHandComponent,
-        BiddingPanelComponent,
-        CardComponent,
-        MarriageDialogComponent
-    ],
+  imports: [
+    CommonModule,
+    PlayerHandComponent,
+    BiddingPanelComponent,
+    CardComponent,
+    MarriageDialogComponent,
+    CachedCardBacksComponent
+  ],
     templateUrl: './game-board.component.html',
     styleUrls: ['./game-board.component.scss']
 })
 export class GameBoardComponent implements OnInit, OnDestroy {
   gameState!: GameState;
   private subscription = new Subscription();
-  
+
   // UI state
   selectedCard: Card | null = null;
   availableMarriages: { suit: Suit; value: number }[] = [];
@@ -38,6 +40,13 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   lastTrickWinner = '';
   gameMessages: string[] = [];
 
+  @ViewChild('cachedCardsTop') cachedCardsTop!: CachedCardBacksComponent;
+  @ViewChild('cachedCardsLeft') cachedCardsLeft!: CachedCardBacksComponent;
+  @ViewChild('cachedCardsRight') cachedCardsRight!: CachedCardBacksComponent;
+
+  cardNumbers = [1, 2, 3, 4, 5, 6, 7, 8];
+  currentCards = 0;
+  isFanned = false;
   constructor(
     private gameService: GameService,
     private playerService: PlayerService,
@@ -79,25 +88,31 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
     // Add game messages for important events
     this.updateGameMessages();
-  }
+    if (this.gameState.players.length > 0 ) {
+      this.showFannedCards('left', this.gameState.players[1].hand.length);
+      this.showFannedCards('top', this.gameState.players[2].hand.length);
+      this.showFannedCards('right', this.gameState.players[3].hand.length);
+    }
 
+
+  }
 
 // Add this property to track animation state
   trickAnimationState: 'none' | 'complete' | 'swipe-up' | 'swipe-down' | 'swipe-left' | 'swipe-right' = 'none';
-  
+
   // Add property to track trick winner
   trickWinnerID: number | null = null;
 
  // Add detailed logging to debug the animation issue
 private handleTrickCompletion(trickResult: TrickResult) {
-  
+
   this.trickWinnerID = trickResult.winnerPlayerID;
   const shouldShowComplete = this.gameState?.currentTrick.length === 4 && this.trickWinnerID === null;
   setTimeout(() => {
     const swipeDirection = this.getSwipeDirection(trickResult.winnerPlayerID);
     this.trickAnimationState = swipeDirection;
   }, 1000);
- 
+
   setTimeout(() => {
     this.resetTrickAnimation();
   }, 3010);
@@ -105,35 +120,67 @@ private handleTrickCompletion(trickResult: TrickResult) {
 
 // Add logging to the swipe direction method
 private getSwipeDirection(playerID: number): 'swipe-up' | 'swipe-down' | 'swipe-left' | 'swipe-right' {
-  let direction: 'swipe-up' | 'swipe-down' | 'swipe-left' | 'swipe-right';  
+  let direction: 'swipe-up' | 'swipe-down' | 'swipe-left' | 'swipe-right';
   switch (playerID) {
-    case 0: 
+    case 0:
       direction = 'swipe-down';  // Bottom player
       break;
-    case 1: 
+    case 1:
       direction = 'swipe-left';  // Left player
       break;
-    case 2: 
+    case 2:
       direction = 'swipe-up';    // Top player
       break;
-    case 3: 
+    case 3:
       direction = 'swipe-right'; // Right player
       break;
-    default: 
+    default:
       direction = 'swipe-up';    // Fallback
       break;
-  }  
+  }
   return direction;
 }
 
 // Add logging to reset method
 private resetTrickAnimation() {
- 
+
   this.trickAnimationState = 'none';
   this.trickWinnerID = null;
 
 
 }
+
+
+  async showCards(nrOfCards: number): Promise<void> {
+    this.currentCards = nrOfCards;
+    this.isFanned = false;
+   // await this.cachedCards.getCardBacks(nrOfCards, false);
+  }
+
+  async showFannedCards(position: String, nrOfCards: number): Promise<void> {
+    this.currentCards = nrOfCards;
+    this.isFanned = true;
+
+    switch (position) {
+      case 'top':
+        if (this.cachedCardsTop !== undefined)
+          await this.cachedCardsTop.getCardBacks(nrOfCards, true);
+        break;
+      case 'left':
+        if (this.cachedCardsLeft !== undefined)
+          await this.cachedCardsLeft.getCardBacks(nrOfCards, true);
+        break;
+      case 'right':
+        if (this.cachedCardsRight !== undefined)
+
+        await this.cachedCardsRight.getCardBacks(nrOfCards, true);
+        break;
+      default:
+      //  await this.cachedCardsTop.getCardBacks(nrOfCards, true);
+        break;
+    }
+
+  }
 
 
   private updatePlaySuggestion() {
@@ -147,7 +194,7 @@ private resetTrickAnimation() {
   private updateGameMessages() {
     // Add messages for trump suit changes, bid results, etc.
     const messages: string[] = [];
-    
+
     if (this.gameState.trumpSuit && this.gameState.bid > 0) {
       const bidderName = this.gameState.players[this.gameState.bidder]?.name || 'Unknown';
       messages.push(`${bidderName} won bid with ${this.gameState.bid}, trump: ${this.formatSuitName(this.gameState.trumpSuit)}`);
@@ -182,12 +229,12 @@ private resetTrickAnimation() {
   getCurrentHandScore(playerIndex: number): number {
     // Get the current hand/round score for a player from game state scores
     if (!this.gameState.players[playerIndex]) return 0;
-    
+
     // Get score from game state scores array
     if (this.gameState.scores && this.gameState.scores[playerIndex] !== undefined) {
       return this.gameState.scores[playerIndex];
     }
-    
+
     return 0;
   }
 
@@ -214,10 +261,10 @@ private resetTrickAnimation() {
   // Card playing methods
   onCardPlayed(card: Card) {
     if (!this.isHumanPlayerTurn() || this.gameState.phase !== GamePhase.PLAYING) return;
-    
+
     if (this.isCardPlayable(card)) {
       this.selectedCard = card;
-      
+
       // Check if marriage can be announced
       if (this.canAnnounceMarriageWith(card) && this.availableMarriages.length > 0) {
         this.showMarriageDialog = true;
@@ -317,8 +364,8 @@ private resetTrickAnimation() {
   // Game flow methods
   getCurrentTrickDescription(): string {
     if (this.gameState.currentTrick.length === 0) return 'No cards played yet';
-    
-    const descriptions = this.gameState.currentTrick.map(card => 
+
+    const descriptions = this.gameState.currentTrick.map(card =>
       `${this.formatCardName(card)} of ${this.formatSuitName(card.suit)}`
     );
     return `Current trick: ${descriptions.join(', ')}`;
@@ -364,7 +411,7 @@ private resetTrickAnimation() {
   }
 
   getCardBacks(count: number): any[] {
-    
+
     return Array(count).fill(0);
   }
 
@@ -389,12 +436,12 @@ private resetTrickAnimation() {
   debugGameState() {
     console.log('Current game state:', this.gameState);
     console.log('Game stats:', this.getGameStats());
-    
+
     const violations = this.cruceRules.detectRuleViolations(this.gameState);
     if (violations.length > 0) {
       console.warn('Rule violations detected:', violations);
     }
-    
+
     const validation = this.cruceRules.validateGameState(this.gameState);
     if (!validation.valid) {
       console.warn('Game state validation errors:', validation.errors);
@@ -414,10 +461,10 @@ private resetTrickAnimation() {
 
 // Update the getBotPlayers method to return players in the correct order
 getBotPlayers(): Player[] {
-  // Return players in order: [player1, player3, player2] 
+  // Return players in order: [player1, player3, player2]
   // This maps to [left-opponent, right-opponent, teammate]
   const bots = this.gameState.players.filter(p => !p.isHuman);
-  
+
   // Ensure we have the right order for the layout
   if (bots.length >= 3) {
     return [
@@ -426,7 +473,7 @@ getBotPlayers(): Player[] {
       this.gameState.players[2]  // Teammate (front)
     ];
   }
-  
+
   return bots;
 }
 
@@ -474,7 +521,7 @@ getTrickPosition(cardIndex: number): { gridColumn: number; gridRow: number } {
     { gridColumn: 3, gridRow: 2 }, // Bottom (third player)
     { gridColumn: 2, gridRow: 3 }  // Right (fourth player)
   ];
-  
+
   return positions[cardIndex] || { gridColumn: 2, gridRow: 2 };
 }
 
@@ -500,11 +547,11 @@ getCardOverlapPercentage(): number {
 triggerCardPlayAnimation(card: Card) {
   // This would trigger visual feedback when a card is played
   console.log(`Card played: ${this.formatCardName(card)}`);
-  
+
   // Add temporary visual feedback
   const message = `${this.formatCardName(card)} played`;
   this.gameMessages.unshift(message);
-  
+
   // Remove message after 3 seconds
   setTimeout(() => {
     const index = this.gameMessages.indexOf(message);
@@ -525,34 +572,34 @@ getCurrentTrumpIcon(): string {
 // Player status indicators
 getPlayerStatusClass(playerIndex: number): string {
   const classes = ['player'];
-  
+
   if (this.isCurrentPlayer(playerIndex)) {
     classes.push('current-player');
   }
-  
+
   if (this.gameState.bidder === playerIndex) {
     classes.push('bidder');
   }
-  
+
   if (this.gameState.passedPlayers.includes(playerIndex)) {
     classes.push('passed');
   }
-  
+
   return classes.join(' ');
 }
 
 // Responsive layout helpers
 getLayoutClass(): string {
   const classes = ['cruce-game-board'];
-  
+
   if (this.isMobileView()) {
     classes.push('mobile-layout');
   }
-  
+
   if (window.innerWidth <= 480) {
     classes.push('compact-layout');
   }
-  
+
   return classes.join(' ');
 }
 

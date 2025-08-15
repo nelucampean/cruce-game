@@ -1,8 +1,8 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Card, Suit } from '../models/card.model';
-import { DeckService } from '../services/deck.service';
-import { CruceRulesService } from '../services/cruce-rules.service';
+import { Card, Suit } from '../../models/card.model';
+import { DeckService } from '../../services/deck.service';
+import { CruceRulesService } from '../../services/cruce-rules.service';
 @Component({
   selector: 'app-marriage-dialog',
   standalone: true,
@@ -17,7 +17,7 @@ export class MarriageDialogComponent {
   @Input() playerHand: Card[] = [];
   @Input() gameScore: number[] = [0, 0];
   @Input() currentBid = 0;
-  
+
   @Output() announce = new EventEmitter<boolean>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -37,9 +37,9 @@ export class MarriageDialogComponent {
 
   get marriagePartner(): Card | null {
     if (!this.selectedCard) return null;
-    
+
     const partnerValue = this.selectedCard.value === 3 ? 4 : 3;
-    return this.playerHand.find(card => 
+    return this.playerHand.find(card =>
       card.suit === this.selectedCard!.suit && card.value === partnerValue
     ) || null;
   }
@@ -85,32 +85,32 @@ export class MarriageDialogComponent {
 
     // Always announce trump marriages - they're very valuable
     if (this.isTrumpMarriage) {
-      return { 
-        announce: true, 
-        reason: 'Trump marriages are very valuable (40 points)' 
+      return {
+        announce: true,
+        reason: 'Trump marriages are very valuable (40 points)'
       };
     }
 
     // If close to making bid, announce for guaranteed points
     if (pointsNeeded > 0 && marriageWorthIt) {
-      return { 
-        announce: true, 
-        reason: `Need ${pointsNeeded} points to make bid` 
+      return {
+        announce: true,
+        reason: `Need ${pointsNeeded} points to make bid`
       };
     }
 
     // If winning by a lot, might save marriage for later
     if (isWinning && this.gameScore[0] - this.gameScore[1] > 50) {
-      return { 
-        announce: false, 
-        reason: 'Already winning comfortably, save for later' 
+      return {
+        announce: false,
+        reason: 'Already winning comfortably, save for later'
       };
     }
 
     // Default to announcing regular marriages for guaranteed points
-    return { 
-      announce: true, 
-      reason: 'Guaranteed points are usually better than risking it' 
+    return {
+      announce: true,
+      reason: 'Guaranteed points are usually better than risking it'
     };
   }
 }

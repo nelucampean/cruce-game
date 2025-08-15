@@ -1,0 +1,7 @@
+<div class="card-container">
+  <canvas #displayCanvas class="display-canvas"></canvas>
+  <div class="loading" *ngIf="isLoading">Loading cache...</div>
+  <div class="cache-info" *ngIf="showCacheInfo">
+    Cache size: {{ cacheStats.size }} items
+  </div>
+</div>

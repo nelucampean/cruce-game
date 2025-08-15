@@ -6,7 +6,7 @@
         {{ getCurrentPhaseDescription() }}
       </div>
     </div>
-    
+
     <div class="game-controls">
       <button class="btn btn-help" (click)="toggleHelp()">
         <span class="icon">❓</span>
@@ -19,7 +19,7 @@
     </div>
   </div>
 
-  <!-- Compact score board (fixed position) 
+  <!-- Compact score board (fixed position)
   <app-score-board [compact]="true"></app-score-board>
 -->
 
@@ -29,7 +29,7 @@
       <!-- Teammate (front position) -->
   <div class="teammate">
     <ng-container *ngIf="getBotPlayers()[2] as teammate">
-      <div class="player-info" 
+      <div class="player-info"
            [class.current-player]="gameState.currentPlayer === 2">
         <span class="player-name">{{ teammate.name }}</span>
         <span class="card-count">{{ teammate.hand.length }}</span>
@@ -37,23 +37,26 @@
           {{ getCurrentHandScore(2) }}
         </span>
       </div>
-      
+
       <div class="teammate-cards">
-        <app-card *ngFor="let dummy of getCardBacks(teammate.hand.length); trackBy: trackByIndex"
-                  [card]="getDummyCard()"
-                  [showBack]="true"
-                  size="small">
-        </app-card>
+        <app-cached-card-backs
+          #cachedCardsTop
+          [offsetX]="15"
+          [offsetY]="2"
+          [fanAngle]="5"
+          [maxCachedCards]="8"
+          [showCacheInfo]="true">
+        </app-cached-card-backs>
       </div>
     </ng-container>
   </div>
 
-  
+
   <div class="opponents-row">
   <!-- Opponent Left (10 o'clock position) -->
   <div class="opponent-left">
     <ng-container *ngIf="getBotPlayers()[0] as opponent">
-      <div class="player-info" 
+      <div class="player-info"
            [class.current-player]="gameState.currentPlayer === 1">
         <span class="player-name">{{ opponent.name }}</span>
         <span class="card-count">{{ opponent.hand.length }}</span>
@@ -61,20 +64,23 @@
           {{ getCurrentHandScore(1) }}
         </span>
       </div>
-      
+
       <div class="opponent-cards">
-        <app-card *ngFor="let dummy of getCardBacks(opponent.hand.length); trackBy: trackByIndex"
-                  [card]="getDummyCard()"
-                  [showBack]="true"
-                  size="small">
-        </app-card>
+        <app-cached-card-backs
+          #cachedCardsLeft
+          [offsetX]="15"
+          [offsetY]="2"
+          [fanAngle]="5"
+          [maxCachedCards]="8"
+          [showCacheInfo]="false">
+        </app-cached-card-backs>
       </div>
     </ng-container>
   </div>
   <!-- Opponent Right (2 o'clock position) -->
   <div class="opponent-right">
     <ng-container *ngIf="getBotPlayers()[1] as opponent">
-      <div class="player-info" 
+      <div class="player-info"
            [class.current-player]="gameState.currentPlayer === 3">
         <span class="player-name">{{ opponent.name }}</span>
         <span class="card-count">{{ opponent.hand.length }}</span>
@@ -82,13 +88,16 @@
           {{ getCurrentHandScore(3) }}
         </span>
       </div>
-      
+
       <div class="opponent-cards">
-        <app-card *ngFor="let dummy of getCardBacks(opponent.hand.length); trackBy: trackByIndex"
-                  [card]="getDummyCard()"
-                  [showBack]="true"
-                  size="small">
-        </app-card>
+        <app-cached-card-backs
+          #cachedCardsRight
+          [offsetX]="15"
+          [offsetY]="2"
+          [fanAngle]="5"
+          [maxCachedCards]="8"
+          [showCacheInfo]="false">
+        </app-cached-card-backs>
       </div>
     </ng-container>
   </div>
@@ -111,14 +120,14 @@
   <div class="trick-label" *ngIf="gameState.currentTrick.length > 0">
     Trick {{ getTrickNumber() }}
   </div>
-  
-  <div class="trick-cards" 
+
+  <div class="trick-cards"
        [class.complete]="gameState.currentTrick.length === 4 && trickWinnerID === null"
        [class.swipe-up]="trickAnimationState === 'swipe-up'"
        [class.swipe-down]="trickAnimationState === 'swipe-down'"
        [class.swipe-left]="trickAnimationState === 'swipe-left'"
        [class.swipe-right]="trickAnimationState === 'swipe-right'">
-       
+
     <app-card *ngFor="let card of gameState.currentTrick; trackBy: trackByIndex"
               [card]="card"
               [isTrump]="card.suit === gameState.trumpSuit"
@@ -127,20 +136,20 @@
               [disabled]="true"
               [inTrick]="true">
     </app-card>
-    
+
     <!-- Placeholder cards for incomplete trick -->
-    <div class="card-placeholder" 
+    <div class="card-placeholder"
          *ngFor="let placeholder of getCardBacks(4 - gameState.currentTrick.length); trackBy: trackByIndex">
     </div>
   </div>
-  
+
   <div class="trick-description" *ngIf="gameState.currentTrick.length > 0">
     {{ getCurrentTrickDescription() }}
   </div>
 </div>
 
     <!-- Bidding panel -->
-    <app-bidding-panel 
+    <app-bidding-panel
       *ngIf="gameState.phase === GamePhase.BIDDING"
       [currentBid]="gameState.bid"
       [currentPlayer]="gameState.players[gameState.currentPlayer]"
@@ -155,7 +164,7 @@
       <div class="help-content">
         <h3>Game Info</h3>
         <p>{{ getGameSummary() }}</p>
-        
+
         <div class="hand-analysis" *ngIf="isHumanPlayerTurn()">
           <h4>Your Hand</h4>
           <ng-container *ngIf="getHandAnalysis() as analysis">
@@ -187,7 +196,7 @@
       <span class="current-score" *ngIf="gameState.phase === GamePhase.PLAYING">
         {{ getCurrentHandScore(0) }} pts
       </span>
-      
+
       <!-- Available marriages indicator -->
       <div class="marriages-available" *ngIf="availableMarriages.length > 0">
         <span class="marriage-icon">👑</span>
@@ -197,18 +206,18 @@
 
     <!-- Player controls -->
     <div class="player-controls" *ngIf="isHumanPlayerTurn() && gameState.phase === GamePhase.PLAYING">
-      <button class="btn-suggestion" 
+      <button class="btn-suggestion"
               (click)="togglePlaySuggestion()"
               [class.active]="showPlaySuggestion">
         <span class="icon">💡</span>
         {{ showPlaySuggestion ? 'Hide' : 'Show' }} Tip
       </button>
-      
+
       <div class="hand-summary">
         <ng-container *ngIf="getHumanPlayer().hand as hand">
           <span>{{ hand.length }} cards</span>
           <span>•</span>
-          <span>{{ getTotalHandPoints(hand) }} pts</span>         
+          <span>{{ getTotalHandPoints(hand) }} pts</span>
          </ng-container>
       </div>
     </div>
@@ -229,7 +238,7 @@
 
   <!-- Game messages -->
   <div class="game-messages" *ngIf="gameMessages.length > 0">
-    <div class="message" 
+    <div class="message"
          *ngFor="let message of gameMessages; trackBy: trackByIndex">
       {{ message }}
     </div>
@@ -251,9 +260,9 @@
   <div class="game-finished-overlay" *ngIf="gameState.phase === GamePhase.FINISHED">
     <div class="game-results">
       <h2>Game Over!</h2>
-      
+
       <div class="final-scores">
-        <div class="team-result" 
+        <div class="team-result"
              *ngFor="let score of gameState.gameScore; let i = index"
              [class.winner]="score >= gameState.targetScore">
           <h3>{{ i === 0 ? 'Your Team' : 'Opponents' }}</h3>
